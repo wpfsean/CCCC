@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="liblinphone-android-sdk:@aar">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/liblinphone-android-sdk.aar/bfb820d6c106987b17bf5da677d0971e/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/liblinphone-android-sdk.aar/bfb820d6c106987b17bf5da677d0971e/jars/classes.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/liblinphone-android-sdk.aar/bfb820d6c106987b17bf5da677d0971e/jars/libs/commons-compress-1.11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

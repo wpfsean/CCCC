@@ -1,0 +1,50 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<LinearLayout
+			android:id="@+id/sipgroup_main_layout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<!--最顶部的头文件-->
+			<!--标题 tilte-->
+		</LinearLayout>
+
+
+		<android.support.v4.widget.SwipeRefreshLayout
+			android:id="@+id/swipeRefreshLayout"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_above="@+id/bottom_sliding_recyclerview"
+			android:layout_below="@+id/sipgroup_main_layout">
+
+			<FrameLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+
+
+				<android.support.v7.widget.RecyclerView
+					android:id="@+id/chat_contact_list_layout"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent">
+
+				</android.support.v7.widget.RecyclerView>
+
+
+
+			</FrameLayout>
+		</android.support.v4.widget.SwipeRefreshLayout>
+
+	</RelativeLayout>
+
+
+</RelativeLayout>

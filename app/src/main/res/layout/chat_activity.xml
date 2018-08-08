@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <!--最顶部的头文件-->
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="21.3dp">
+
+
+        <TextView
+            android:id="@+id/mainfragment_time_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text=""
+            android:textColor="@color/black" />
+    </RelativeLayout>
+
+    <!--标题 tilte-->
+    <RelativeLayout
+        android:id="@+id/chat_title"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="#0051AA">
+
+        <ImageButton
+            android:id="@+id/finish_back_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:visibility="gone"
+            android:background="@drawable/port_monitoring_icon_return_selected" />
+
+        <TextView
+            android:id="@+id/current_fragment_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <ImageButton
+            android:id="@+id/loading_more_videosources_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="326dp"
+            android:visibility="gone"
+            android:background="@drawable/port_monitoring_icon_listcontrol_selected" />
+    </RelativeLayout>
+
+
+    <ListView
+        android:layout_below="@+id/chat_title"
+        android:id="@+id/message_listview_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/et_relativelayout"
+        android:divider="@null"></ListView>
+
+    <RelativeLayout
+        android:id="@+id/et_relativelayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <EditText
+            android:id="@+id/sendmessage_layout"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:hint="" />
+
+
+        <TextView
+            android:id="@+id/send_message_btn_layout"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/sendmessage_layout"
+            android:background="@drawable/send_textview_mess_bg"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:padding="3dp"
+            android:text="发送" />
+
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="应急报警" />
+
+
+    <TextView
+        android:id="@+id/show_emergency_call_time"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="00:00" />
+
+
+    <FrameLayout
+        android:id="@+id/show_screen_layout"
+        android:layout_width="match_parent"
+        android:layout_height="300dp">
+
+
+        <RelativeLayout
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="bottom|left"
+            android:background="#ff00ff">
+
+            <cn.nodemedia.NodePlayerView
+                android:id="@+id/show_emergency_layout"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_margin="2dp"></cn.nodemedia.NodePlayerView>
+
+
+        </RelativeLayout>
+
+        <SurfaceView
+            android:id="@+id/sur_view_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/custom_camera_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
+            android:text="切换" />
+
+        <Button
+            android:id="@+id/close_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_weight="1"
+            android:text="结束" />
+    </LinearLayout>
+
+
+    <!--<TextView-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:gravity="center"-->
+    <!--android:text="报警信息" />-->
+
+
+    <!--<FrameLayout-->
+    <!--android:id="@+id/show_screen_layout"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="300dp">-->
+
+    <!--<SurfaceView-->
+    <!--android:id="@+id/sur_view_layout"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="300dp" />-->
+
+
+    <!--<RelativeLayout-->
+    <!--android:layout_width="100dp"-->
+    <!--android:layout_height="100dp"-->
+    <!--android:layout_gravity="left|bottom"-->
+    <!--android:layout_margin="2dp"-->
+    <!--android:background="#000">-->
+    <!--<cn.nodemedia.NodePlayerView-->
+    <!--android:id="@+id/show_emergency_layout"-->
+    <!--android:layout_width="100dp"-->
+    <!--android:layout_height="100dp"></cn.nodemedia.NodePlayerView>-->
+
+    <!--</RelativeLayout>-->
+    <!--</FrameLayout>-->
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:orientation="horizontal">-->
+
+    <!--<Button-->
+    <!--android:id="@+id/custom_camera_layout"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="right"-->
+    <!--android:layout_weight="1"-->
+    <!--android:text="切换" />-->
+
+    <!--<Button-->
+    <!--android:id="@+id/close_layout"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="left"-->
+    <!--android:layout_weight="1"-->
+    <!--android:text="结束" />-->
+    <!--</LinearLayout>-->
+
+</LinearLayout>
