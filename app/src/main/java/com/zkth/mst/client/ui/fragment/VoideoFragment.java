@@ -5,19 +5,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -38,9 +28,7 @@ import com.zkth.mst.client.utils.PageModel;
 import com.zkth.mst.client.utils.SharedPreferencesUtils;
 import com.zkth.mst.client.utils.ToastUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -57,52 +45,85 @@ import cn.nodemedia.NodePlayerView;
  */
 public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, View.OnTouchListener {
 
+    /**
+     * 四分屏分页加载器
+     */
+    PageModel fourPm;
 
-    PageModel pm;//分页加载器
-    PageModel singlePm;//分页加载器;//分页加载器
-    int videoCurrentPage = 1;//当前页码
+    /**
+     * 单屏分页加载器
+     */
+    PageModel singlePm;
 
+    /**
+     * 记录当前的页码
+     */
+    int videoCurrentPage = 1;
 
+    //四分屏按钮
     @BindView(R.id.four_screen_button_select)
     ImageButton four_screen_button_select;
+    //单屏按钮
     @BindView(R.id.single_screen_button_selecte)
     ImageButton single_screen_button_selecte;
-
+    //停止或重新播放按钮
     @BindView(R.id.paly_or_stop_button_select)
     ImageButton paly_or_stop_button_select;
 
-
-    //数据集合
+    /**
+     * 数据集合
+     */
     List<Device> devicesList = new ArrayList<>();
-    //当前四屏的数据集合
+
+    /**
+     * 盛放当前四分屏数据的集合
+     */
     List<Device> currentList = new ArrayList<>();
-    //单屏时要播放的数据
+
+    /**
+     * 盛放单屏数据的集合
+     */
     List<Device> currentSingleList = new ArrayList<>();
-    //单屏的NodeMediaclient播放器
+
+    /**
+     * 单屏播放的播放器
+     */
     NodePlayer singlePlayer;
+
+    /**
+     * 四分屏的四个播放器
+     */
     NodePlayer firstPalyer, secondPlayer, thirdPlayer, fourthPlayer;
 
     //单屏显示的player布局
     @BindView(R.id.single_player_layout)
     NodePlayerView single_player_layout;
+
     //第一个视频的view
     @BindView(R.id.first_player_layout)
     NodePlayerView firstPlayerView;
-    //第一个视频 的Progressbar
+
+    //第一个加载进度条
     @BindView(R.id.first_pr_layout)
     ProgressBar first_pr_layout;
+
     //第一个视频 的loading
     @BindView(R.id.first_dispaly_loading_layout)
     TextView first_dispaly_loading_layout;
+
     //第一个视频所在的背景而
     @BindView(R.id.first_surfaceview_relativelayout)
     public RelativeLayout first_surfaceview_relativelayout;
+
     //第二个视频的view
     @BindView(R.id.second_player_layout)
     NodePlayerView secondPlayerView;
+
     //第二个视频所在的背景而
     @BindView(R.id.second_surfaceview_relativelayout)
     public RelativeLayout second_surfaceview_relativelayout;
+
+    //第二个加载进度条
     @BindView(R.id.second_pr_layout)
     ProgressBar second_pr_layout;
     //第一个视频 的loading
@@ -112,6 +133,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
     //第三个视频的view
     @BindView(R.id.third_player_layout)
     NodePlayerView thirdPlayerView;
+
     //第三个视频所在的背景而
     @BindView(R.id.third_surfaceview_relativelayout)
     public RelativeLayout third_surfaceview_relativelayout;
@@ -119,13 +141,15 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
     //第三个视频 的progressbar
     @BindView(R.id.third_pr_layout)
     ProgressBar third_pr_layout;
-    //第一个视频 的loading
+
+    //第三个视频 的loading
     @BindView(R.id.third_dispaly_loading_layout)
     TextView third_dispaly_loading_layout;
 
     //第四个视频的view
     @BindView(R.id.fourth_player_layout)
     NodePlayerView fourthPlayerView;
+
     //第四个视频所在的背景而
     @BindView(R.id.fourth_surfaceview_relativelayout)
     public RelativeLayout fourth_surfaceview_relativelayout;
@@ -141,70 +165,89 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
     //单屏播放时的progressbar
     @BindView(R.id.single_player_progressbar_layout)
     ProgressBar single_player_progressbar_layout;
+
     //单屏时显示 的Loading
     @BindView(R.id.dispaly_video_loading_layout)
     TextView dispaly_video_loading_layout;
+
     //显示视频信息的Textview
     @BindView(R.id.display_video_information_text_layout)
     TextView display_video_information_text_layout;
 
-    //上下左右四个键
+    //下键
     @BindView(R.id.video_ptz_up)
     ImageButton video_ptz_up;
+
+    //上键
     @BindView(R.id.video_ptz_down)
     ImageButton video_ptz_down;
+
+    //左键
     @BindView(R.id.video_ptz_left)
     ImageButton video_ptz_left;
+
+    //右键
     @BindView(R.id.video_ptz_right)
     ImageButton video_ptz_right;
-    //放大缩小键盘
+
+    //放大按钮
     @BindView(R.id.video_zoomout_button)
     ImageButton video_zoomout_button;
+
+    //缩小按钮
     @BindView(R.id.video_zoombig_button)
     ImageButton video_zoombig_button;
 
-
-    //the parent layout of listview
+    //listview所在的父布局
     @BindView(R.id.relativelayout_listview)
     RelativeLayout relativelayout_listview;
 
-    //control layout
+    //正文控制键所在的布局
     @BindView(R.id.show_relativelayout_all_button)
     RelativeLayout show_relativelayout_all_button;
 
-    //direction layout
+    //方向键盘所在布局
     @BindView(R.id.relativelayout_control)
     RelativeLayout relativelayout_control;
-
 
     //展示视频数据的listview
     @BindView(R.id.show_listresources)
     public ListView show_listresources;
 
-    @BindView(R.id.bottom_sliding_recyclerview)
-    public RecyclerView bottomSlidingView;
+//
+//    @BindView(R.id.bottom_sliding_recyclerview)
+//    public RecyclerView bottomSlidingView;
 
-    //当前状态是四分屏
+    //四屏所在 的父布局
+    @BindView(R.id.four_surfaceview_parent_relativelayout)
+    RelativeLayout four_surfaceview_parent_relativelayout;
+
+    //单屏所在的父布局
+    @BindView(R.id.single_surfaceview_parent_relativelayout)
+    RelativeLayout single_surfaceview_parent_relativelayout;
+
+    /**
+     * 当前 是否是四分屏状态
+     */
     boolean isCurrentFourScreen = true;
-    //当前状态是单屏
+
+    /**
+     * 当前是否是单屏状态
+     */
     boolean isCurrentSingleScreen = false;
-    //判断这四个视频 中否被选中
+
+    /**
+     * 判断四个视频是否被选中
+     */
     boolean firstViewSelect = false;
     boolean secondViewSelect = false;
     boolean thirdViewSelect = false;
     boolean fourthViewSelect = false;
 
 
-    //四屏所在 的父布局
-    @BindView(R.id.four_surfaceview_parent_relativelayout)
-    RelativeLayout four_surfaceview_parent_relativelayout;
-    //单屏所在的父布局
-    @BindView(R.id.single_surfaceview_parent_relativelayout)
-    RelativeLayout single_surfaceview_parent_relativelayout;
-
     @Override
     protected int getLayoutId() {
-        return R.layout.view3;
+        return R.layout.paly_video_layout;
     }
 
     @Override
@@ -215,26 +258,14 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        //初始控件
         initView();
+        //初始数据
         initData();
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private void initData() {
-
-        final ImageButton loadMoreData = (ImageButton) getActivity().findViewById(R.id.loading_more_videosources_layout);
-        loadMoreData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ToastUtils.showShort("sssssssss");
-                        loadMoreData.setVisibility(View.GONE);
-                    }
-                });
-            }
-        });
 
         //取出事先解析好的数据
         String dataSources = (String) SharedPreferencesUtils.getObject(getActivity(), "result", "");
@@ -242,42 +273,50 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ToastUtils.showShort("No data!!!");
+                    showEmptyView();
                 }
             });
             return;
         }
+
         List<Device> mlist = GsonUtils.getGsonInstace().str2List(dataSources);
         if (mlist != null && mlist.size() > 0) {
             devicesList = mlist;
         }
-        pm = new PageModel(devicesList, 4);
+
+        //实例分页加载器
+        fourPm = new PageModel(devicesList, 4);
         singlePm = new PageModel(devicesList, 1);
+
+        //获取要预览的数据
         Intent intent = getActivity().getIntent();
         List<Device> passingDataList = (List<Device>) intent.getSerializableExtra("previewdata");//获取list方式
 
         if (passingDataList != null) {
-            Logutils.i("passingDataList:" + passingDataList.size());
             currentList = passingDataList;
         } else {
-            Logutils.i("NoData");
             //初始页面显示的四屏数据
-            currentList = pm.getObjects(videoCurrentPage);
+            currentList = fourPm.getObjects(videoCurrentPage);
             //初始页面单屏的数据
         }
         currentSingleList = singlePm.getObjects(videoCurrentPage);
+
+        //播放视频
         initPlayer();
 
         //当前播放的视频中是否包含云台控制
-        getPtz();
+        judgeHasPtzVideo();
 
-
+        //当前视频单击或双击事件
         videoScreenClickEvent();
-
     }
 
+    /**
+     * 四分屏或单屏的单击或双击事件
+     */
     private void videoScreenClickEvent() {
 
+        //第一个播放器的点击或双击事件
         firstPlayerView.setOnTouchListener(new OnMultiTouchListener(new OnMultiTouchListener.MultiClickCallback() {
             @Override
             public void onDoubleClick() {
@@ -317,7 +356,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             }
         }));
 
-
+        //第二个播放器的点击或双击事件
         secondPlayerView.setOnTouchListener(new OnMultiTouchListener(new OnMultiTouchListener.MultiClickCallback() {
             @Override
             public void onDoubleClick() {
@@ -358,7 +397,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             }
         }));
 
-
+        //第三个播放器的点击或双击事件
         thirdPlayerView.setOnTouchListener(new OnMultiTouchListener(new OnMultiTouchListener.MultiClickCallback() {
             @Override
             public void onDoubleClick() {
@@ -398,7 +437,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             }
         }));
 
-
+        //第四个播放器的点击或双击事件
         fourthPlayerView.setOnTouchListener(new OnMultiTouchListener(new OnMultiTouchListener.MultiClickCallback() {
             @Override
             public void onDoubleClick() {
@@ -439,7 +478,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             }
         }));
 
-
+        //单屏播放器的点击或双击事件
         single_player_layout.setOnTouchListener(new OnMultiTouchListener(new OnMultiTouchListener.MultiClickCallback() {
             @Override
             public void onDoubleClick() {
@@ -480,7 +519,11 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
         }, null));
     }
 
+    /**
+     * 初始化控件
+     */
     private void initView() {
+        //方向键和放大缩小键的Touch事件
         video_ptz_up.setOnTouchListener(this);
         video_ptz_down.setOnTouchListener(this);
         video_ptz_left.setOnTouchListener(this);
@@ -488,9 +531,16 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
         video_zoomout_button.setOnTouchListener(this);
         video_zoombig_button.setOnTouchListener(this);
 
+        //实现四个播放器
         firstPalyer = new NodePlayer(getActivity());
+
+        //设置要播放的view
         firstPalyer.setPlayerView(firstPlayerView);
+
+        //设置连接等待超时时长
         firstPalyer.setConnectWaitTimeout(3 * 1000);
+
+        //设置不自动 重连
         firstPalyer.setAutoReconnectWaitTimeout(0);
 
         secondPlayer = new NodePlayer(getActivity());
@@ -508,12 +558,21 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
         fourthPlayer.setAutoReconnectWaitTimeout(0);
     }
 
-
+    /**
+     * 获取到的rtsp地址
+     */
     String mRtsp = "";
+
+    /**
+     * 获取要播放的rtsp的token
+     */
     String mToken = "";
 
-    //是否有ptz功能的云台
-    public void getPtz() {
+    /**
+     * 判断当前的页面是否有云台控制的视频
+     */
+    public void judgeHasPtzVideo() {
+
         if (currentList != null && currentList.size() > 0) {
             for (Device d : currentList) {
                 String rtsp = d.getPtzUrl();
@@ -528,6 +587,10 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
         }
     }
 
+
+    /**
+     * 实例播放器
+     */
     private void initPlayer() {
         single_screen_button_selecte.setBackgroundResource(R.mipmap.port_btn_single_normal);
         four_screen_button_select.setBackgroundResource(R.mipmap.port_monitoring_btn_4splitscreen_selected);
@@ -535,24 +598,23 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    first_pr_layout.setVisibility(View.VISIBLE);
-                    first_dispaly_loading_layout.setVisibility(View.VISIBLE);
-                    first_dispaly_loading_layout.setText("Loading...");
-
-                    second_pr_layout.setVisibility(View.VISIBLE);
-                    second_dispaly_loading_layout.setVisibility(View.VISIBLE);
-                    second_dispaly_loading_layout.setText("Loading...");
-
-                    third_pr_layout.setVisibility(View.VISIBLE);
-                    third_dispaly_loading_layout.setVisibility(View.VISIBLE);
-                    third_dispaly_loading_layout.setText("Loading...");
-
-                    fourth_pr_layout.setVisibility(View.VISIBLE);
-                    fourth_dispaly_loading_layout.setVisibility(View.VISIBLE);
-                    fourth_dispaly_loading_layout.setText("Loading...");
+//                    first_pr_layout.setVisibility(View.VISIBLE);
+//                    first_dispaly_loading_layout.setVisibility(View.VISIBLE);
+//                    first_dispaly_loading_layout.setText("Loading...");
+//
+//                    second_pr_layout.setVisibility(View.VISIBLE);
+//                    second_dispaly_loading_layout.setVisibility(View.VISIBLE);
+//                    second_dispaly_loading_layout.setText("Loading...");
+//
+//                    third_pr_layout.setVisibility(View.VISIBLE);
+//                    third_dispaly_loading_layout.setVisibility(View.VISIBLE);
+//                    third_dispaly_loading_layout.setText("Loading...");
+//
+//                    fourth_pr_layout.setVisibility(View.VISIBLE);
+//                    fourth_dispaly_loading_layout.setVisibility(View.VISIBLE);
+//                    fourth_dispaly_loading_layout.setText("Loading...");
                 }
             });
-
 
             String rtsp1 = "";
             if (!TextUtils.isEmpty(currentList.get(0).getRtspUrl())) {
@@ -593,21 +655,33 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             if (fourthPlayer != null && fourthPlayer.isPlaying()) {
                 fourthPlayer.stop();
             }
+            //设置播放地址
             firstPalyer.setInputUrl(rtsp1);
+
+            //设置播放器回调
             firstPalyer.setNodePlayerDelegate(this);
+
+            //设置是否播放时有声音
             firstPalyer.setAudioEnable(AppConfig.isVideoSound);
+
+            //视频是否开启视频
             firstPalyer.setVideoEnable(true);
+
+            //开始播放
             firstPalyer.start();
+
             secondPlayer.setInputUrl(rtsp2);
             secondPlayer.setNodePlayerDelegate(this);
             secondPlayer.setAudioEnable(AppConfig.isVideoSound);
             secondPlayer.setVideoEnable(true);
             secondPlayer.start();
+
             thirdPlayer.setInputUrl(rtsp3);
             thirdPlayer.setNodePlayerDelegate(this);
             thirdPlayer.setAudioEnable(AppConfig.isVideoSound);
             thirdPlayer.setVideoEnable(true);
             thirdPlayer.start();
+
             fourthPlayer.setInputUrl(rtsp4);
             fourthPlayer.setNodePlayerDelegate(this);
             fourthPlayer.setAudioEnable(AppConfig.isVideoSound);
@@ -706,106 +780,90 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
      */
     @Override
     public void onEventCallback(NodePlayer player, final int event, final String msg) {
-//        if (firstPalyer == player) {
-//            getActivity().runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (event == 1002 || event == 1003 || event == 1005 || event == 1006) {
-//                        first_pr_layout.setVisibility(View.GONE);
-//                        first_dispaly_loading_layout.setVisibility(View.VISIBLE);
-//                        first_dispaly_loading_layout.setText("播放失败...");
-//                    } else {
-//                        first_pr_layout.setVisibility(View.GONE);
-//                        first_dispaly_loading_layout.setVisibility(View.GONE);
-//                    }
-//                }
-//            });
-//        }
-//        if (secondPlayer == player) {
-//            getActivity().runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (event == 1002 || event == 1003 || event == 1005 || event == 1006) {
-//                        second_pr_layout.setVisibility(View.GONE);
-//                        second_dispaly_loading_layout.setVisibility(View.VISIBLE);
-//                        second_dispaly_loading_layout.setText("播放失败...");
-//                    } else {
-//                        second_pr_layout.setVisibility(View.GONE);
-//                        second_dispaly_loading_layout.setVisibility(View.GONE);
-//                    }
-//                }
-//            });
-//        }
-//        if (thirdPlayer == player) {
-//            Logutils.i("third:" + event + msg);
-//            getActivity().runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (event == 1002 || event == 1003 || event == 1005 || event == 1006) {
-//                        third_pr_layout.setVisibility(View.GONE);
-//                        third_dispaly_loading_layout.setVisibility(View.VISIBLE);
-//                        third_dispaly_loading_layout.setText("播放失败...");
-//                    } else {
-//                        third_pr_layout.setVisibility(View.GONE);
-//                        third_dispaly_loading_layout.setVisibility(View.GONE);
-//                    }
-//                }
-//            });
-//        }
-//        if (fourthPlayer == player) {
-//            Logutils.i("fourth:" + event + msg);
-//            getActivity().runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (event == 1002 || event == 1003 || event == 1005 || event == 1006) {
-//                        fourth_pr_layout.setVisibility(View.GONE);
-//                        fourth_dispaly_loading_layout.setVisibility(View.VISIBLE);
-//                        fourth_dispaly_loading_layout.setText("播放失败...");
-//                    } else {
-//                        fourth_pr_layout.setVisibility(View.GONE);
-//                        fourth_dispaly_loading_layout.setVisibility(View.GONE);
-//                    }
-//                }
-//            });
-//        }
-//        if (singlePlayer == player) {
-//            Logutils.i("single:" + event + msg);
-//
-//
-//            getActivity().runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (event == 1002 || event == 1003 || event == 1005 || event == 1006) {
-//                        single_player_progressbar_layout.setVisibility(View.GONE);
-//                        dispaly_video_loading_layout.setVisibility(View.VISIBLE);
-//                        dispaly_video_loading_layout.setText("播放失败...");
-//                    } else {
-//                        dispaly_video_loading_layout.setVisibility(View.GONE);
-//                        single_player_progressbar_layout.setVisibility(View.GONE);
-//                    }
-//                }
-//            });
-//        }
+        if (firstPalyer == player) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (event == 1002 || event == 1003 || event == 1005 || event == 1006) {
+                        first_pr_layout.setVisibility(View.GONE);
+                        first_dispaly_loading_layout.setVisibility(View.VISIBLE);
+                        first_dispaly_loading_layout.setText(msg);
+                        return;
+                    } else {
+                        first_pr_layout.setVisibility(View.GONE);
+                        first_dispaly_loading_layout.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
+        if (secondPlayer == player) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (event == 1002 || event == 1003 || event == 1005 || event == 1006) {
+                        second_pr_layout.setVisibility(View.GONE);
+                        second_dispaly_loading_layout.setVisibility(View.VISIBLE);
+                        second_dispaly_loading_layout.setText(msg);
+                        return;
+                    } else {
+                        second_pr_layout.setVisibility(View.GONE);
+                        second_dispaly_loading_layout.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
+        if (thirdPlayer == player) {
+            Logutils.i("third:" + event + msg);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (event == 1003) {
+                        third_pr_layout.setVisibility(View.GONE);
+                        third_dispaly_loading_layout.setVisibility(View.VISIBLE);
+                        third_dispaly_loading_layout.setText(msg);
+                        return;
+                    } else {
+                        third_pr_layout.setVisibility(View.GONE);
+                        third_dispaly_loading_layout.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
+        if (fourthPlayer == player) {
+            Logutils.i("fourth:" + event + msg);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (event == 1003) {
+                        fourth_pr_layout.setVisibility(View.GONE);
+                        fourth_dispaly_loading_layout.setVisibility(View.VISIBLE);
+                        fourth_dispaly_loading_layout.setText(msg);
+                        return;
+                    } else {
+                        fourth_pr_layout.setVisibility(View.GONE);
+                        fourth_dispaly_loading_layout.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
+        if (singlePlayer == player) {
+            Logutils.i("single:" + event + msg);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (event == 1002 || event == 1003 || event == 1005 || event == 1006) {
+                        single_player_progressbar_layout.setVisibility(View.GONE);
+                        dispaly_video_loading_layout.setVisibility(View.VISIBLE);
+                        dispaly_video_loading_layout.setText(msg);
+                        return;
+                    } else {
+                        dispaly_video_loading_layout.setVisibility(View.GONE);
+                        single_player_progressbar_layout.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
     }
-
-
-//	/**
-//	 * finish本页面
-//	 */
-//	@OnClick(R.id.finish_back_layout)
-//	public void finishThisActivity(View view) {
-//		if (firstPalyer != null) firstPalyer.release();
-//		firstPalyer = null;
-//		if (secondPlayer != null) secondPlayer.release();
-//		secondPlayer = null;
-//		if (thirdPlayer != null) thirdPlayer.release();
-//		thirdPlayer = null;
-//		if (fourthPlayer != null) fourthPlayer.release();
-//		fourthPlayer = null;
-//		if (singlePlayer != null) singlePlayer.release();
-//		singlePlayer = null;
-//		MutilScreenActivity.this.finish();
-//	}
 
 
     /**
@@ -814,6 +872,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
     @OnClick(R.id.send_alarmtoServer_button)
     public void sendAlarmToServer(View view) {
 
+        //判断当前是单屏状态
         if (isCurrentSingleScreen) {
             if (currentSingleList != null && currentSingleList.size() > 0) {
                 VideoBen v = currentSingleList.get(0).getVideoBen();
@@ -839,8 +898,9 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
                 sendAlarmToServer.start();
             }
         }
-        if (isCurrentFourScreen) {
 
+        //判断当前 是四分屏状态
+        if (isCurrentFourScreen) {
             if (firstViewSelect) {
                 sendToAlarm(1);
             } else if (secondViewSelect) {
@@ -850,6 +910,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             } else if (fourthViewSelect) {
                 sendToAlarm(4);
             } else {
+                //未选 中窗口
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -860,8 +921,15 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
         }
     }
 
+    /**
+     * 根据选中的窗口报警
+     * <p>
+     * 1、第一个视频源
+     * 2、第二个视频源
+     * 3、第三个视频源
+     * 4、第四个视频源
+     */
     private void sendToAlarm(int tag) {
-
         VideoBen v = null;
         if (currentList != null && currentList.size() > 0) {
             if (tag == 1) {
@@ -905,6 +973,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
      */
     private void initSinglePlayer(String rtsp) {
 
+        //显示加载的进度条和加载数据的提示
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -914,30 +983,38 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             }
         });
 
+        //单屏的视频播放器的停止播放
         if (singlePlayer != null && singlePlayer.isPlaying()) {
             singlePlayer.pause();
             singlePlayer.stop();
+            singlePlayer.release();
         }
 
+        //第一个视频播放器的停止播放
         if (firstPalyer != null && firstPalyer.isPlaying()) {
             firstPalyer.pause();
             firstPalyer.stop();
         }
+
+        //第二个视频播放器的停止播放
         if (secondPlayer != null && secondPlayer.isPlaying()) {
             secondPlayer.pause();
             secondPlayer.stop();
         }
 
+        //第三个视频播放器的停止播放
         if (thirdPlayer != null && thirdPlayer.isPlaying()) {
             thirdPlayer.pause();
             thirdPlayer.stop();
         }
 
+        //第四个视频播放器的停止播放
         if (fourthPlayer != null && fourthPlayer.isPlaying()) {
             fourthPlayer.pause();
             fourthPlayer.stop();
         }
 
+        //设置四分屏的布局都 不可见
         firstPlayerView.setVisibility(View.GONE);
         secondPlayerView.setVisibility(View.GONE);
         thirdPlayerView.setVisibility(View.GONE);
@@ -945,7 +1022,10 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
         four_surfaceview_parent_relativelayout.setVisibility(View.GONE);
         single_surfaceview_parent_relativelayout.setVisibility(View.VISIBLE);
 
+        //单屏布局可见
         single_player_layout.setVisibility(View.VISIBLE);
+
+        //实例单屏播放器并开始播放
         singlePlayer = new NodePlayer(getActivity());
         singlePlayer.setPlayerView(single_player_layout);
         singlePlayer.setInputUrl(rtsp);
@@ -953,6 +1033,8 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
         singlePlayer.setAudioEnable(AppConfig.isVideoSound);
         singlePlayer.setVideoEnable(true);
         singlePlayer.start();
+
+        //设置单屏的播放信息
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -962,21 +1044,25 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
 
     }
 
-
     /**
      * 下一页
      */
     @OnClick(R.id.video_nextpage_button)
     public void videoNextPage(View view) {
+
         videoCurrentPage++;
+
+        //当前四分屏
         if (isCurrentFourScreen) {
             if (isCurrentFourScreen) {
-                if (pm != null && pm.isHasNextPage()) {
-                    currentList = pm.getObjects(videoCurrentPage);
+                if (fourPm != null && fourPm.isHasNextPage()) {
+                    currentList = fourPm.getObjects(videoCurrentPage);
                     initPlayer();
                 }
             }
         }
+
+        //当前单屏
         if (isCurrentSingleScreen) {
             if (singlePm != null && singlePm.isHasNextPage()) {
                 currentSingleList = singlePm.getObjects(videoCurrentPage);
@@ -988,7 +1074,8 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             }
         }
 
-        getPtz();
+        //判断本页面内是否有云台控制的数据
+        judgeHasPtzVideo();
     }
 
     /**
@@ -996,16 +1083,20 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
      */
     @OnClick(R.id.video_previous_button)
     public void videoPreviousPage(View view) {
+
         videoCurrentPage--;
+
+        //四分屏时的状态
         if (isCurrentFourScreen) {
-            if (pm != null && pm.isHasPreviousPage()) {
-                currentList = pm.getObjects(videoCurrentPage);
+            if (fourPm != null && fourPm.isHasPreviousPage()) {
+                currentList = fourPm.getObjects(videoCurrentPage);
                 initPlayer();
             } else {
                 videoCurrentPage = 1;
             }
         }
 
+        //单屏的状态
         if (isCurrentSingleScreen) {
             if (singlePm != null && singlePm.isHasPreviousPage()) {
                 currentSingleList = singlePm.getObjects(videoCurrentPage);
@@ -1018,7 +1109,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
                 videoCurrentPage = 1;
             }
         }
-        getPtz();
+        judgeHasPtzVideo();
     }
 
 
@@ -1028,13 +1119,14 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
     @OnClick(R.id.single_screen_button_selecte)
     public void singleScreenVideo(View view) {
 
-//        if (firstViewSelect || secondViewSelect || thirdViewSelect || fourthViewSelect) {
+        //  if (firstViewSelect || secondViewSelect || thirdViewSelect || fourthViewSelect) {
         single_screen_button_selecte.setBackgroundResource(R.mipmap.port_btn_single_selected);
         four_screen_button_select.setBackgroundResource(R.mipmap.port_monitoring_btn_4splitscreen_normal);
         isCurrentFourScreen = false;
         isCurrentSingleScreen = true;
-        //       }
+        //  }
 
+        //第一个窗口选中
         if (firstViewSelect) {
             String rtsp = "";
             if (!TextUtils.isEmpty(currentList.get(0).getRtspUrl())) {
@@ -1042,6 +1134,8 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             }
             initSinglePlayer(rtsp);
         }
+
+        //第二个窗口选中
         if (secondViewSelect) {
             String rtsp = "";
             if (!TextUtils.isEmpty(currentList.get(1).getRtspUrl())) {
@@ -1050,6 +1144,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             initSinglePlayer(rtsp);
         }
 
+        //第三个窗口选中
         if (thirdViewSelect) {
             String rtsp = "";
             if (!TextUtils.isEmpty(currentList.get(2).getRtspUrl())) {
@@ -1057,6 +1152,7 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             }
             initSinglePlayer(rtsp);
         }
+
 
         if (fourthViewSelect) {
             String rtsp = "";
@@ -1214,7 +1310,25 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             }
         } else if (isCurrentSingleScreen) {
             if (singlePlayer != null) {
-                singlePlayer.stop();
+                if (!firstPlayerIsStop) {
+                    singlePlayer.stop();
+                    firstPlayerIsStop = true;
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            paly_or_stop_button_select.setBackgroundResource(R.mipmap.port_monitoring_icon_player_selected);
+                        }
+                    });
+                } else {
+                    firstPlayerIsStop = false;
+                    singlePlayer.start();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            paly_or_stop_button_select.setBackgroundResource(R.mipmap.port_monitoring_icon_stopplay_normal);
+                        }
+                    });
+                }
             }
         }
     }
@@ -1225,21 +1339,49 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
         Logutils.i(hidden + "///////////////////////hidden");
     }
 
+    boolean currentPageVisible = false;
+
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        Logutils.i(isVisibleToUser + "///////////////////////isVisibleToUser");
-//        if (isVisibleToUser){
-//            if (firstPalyer != null){
-//                if (firstPalyer.isPlaying()){
-//                    firstPalyer.stop();
-//                }
-//            }
-//        }else {
-//            if (firstPalyer != null){
-//                firstPalyer.start();
-//            }
-//        }
+        if (isVisibleToUser) {
+            currentPageVisible = true;
+        } else {
+            currentPageVisible = false;
 
+            if (firstPalyer != null){
+                firstPalyer.setNodePlayerDelegate(null);
+            }
+            if (secondPlayer != null){
+                secondPlayer.setNodePlayerDelegate(null);
+            }
+            if (thirdPlayer != null){
+                thirdPlayer.setNodePlayerDelegate(null);
+            }
+            if (fourthPlayer != null){
+                fourthPlayer.setNodePlayerDelegate(null);
+            }
+        }
+        Logutils.i(isVisibleToUser + "VoideoFragment:" + isVisibleToUser);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        firstPalyer.release();
+        secondPlayer.release();
+        thirdPlayer.release();
+        fourthPlayer.release();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
 }

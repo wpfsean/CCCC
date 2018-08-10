@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.zkth.mst.client.base.App;
 import com.zkth.mst.client.base.AppConfig;
+import com.zkth.mst.client.base.DbConfig;
 import com.zkth.mst.client.utils.ByteUtils;
 import com.zkth.mst.client.utils.PhoneUtils;
 
@@ -21,9 +22,13 @@ import java.util.List;
  */
 
 public class SendHearToServerThread extends Thread {
-
+    String dbPort;
+    String dbServerIp;
 
     public SendHearToServerThread() {
+
+        dbServerIp = DbConfig.getInstance().getData(12);
+        dbPort = DbConfig.getInstance().getData(4);
     }
 
     @Override
@@ -33,7 +38,7 @@ public class SendHearToServerThread extends Thread {
         byte[] requestBytes = new byte[96];
         byte[] flag = "ZDHB".getBytes();// 数据标识头字节
         byte[] id = new byte[48];
-        byte[] idKey = PhoneUtils.getPhoneInfo(App.getApplication(),1).getBytes();//手机唯一 的标识字节
+        byte[] idKey = PhoneUtils.getPhoneInfo(App.getApplication(), 1).getBytes();//手机唯一 的标识字节
         System.arraycopy(flag, 0, requestBytes, 0, 4);
         System.arraycopy(idKey, 0, id, 0, idKey.length);
         System.arraycopy(id, 0, requestBytes, 4, 48);
@@ -99,8 +104,17 @@ public class SendHearToServerThread extends Thread {
         DatagramSocket socketUdp = null;
         DatagramPacket datagramPacket = null;
         try {
-            socketUdp = new DatagramSocket(2020);
-            datagramPacket = new DatagramPacket(requestBytes, requestBytes.length, InetAddress.getByName("19.0.0.28"), 2020);
+            int port = 2020;
+            if (!TextUtils.isEmpty(dbPort)) {
+                port = Integer.parseInt(dbPort);
+            }
+            String ip = "19.0.0.28";
+            if (!TextUtils.isEmpty(dbServerIp)) {
+                ip = dbServerIp;
+            }
+
+            socketUdp = new DatagramSocket(port);
+            datagramPacket = new DatagramPacket(requestBytes, requestBytes.length, InetAddress.getByName(ip), port);
             socketUdp.send(datagramPacket);
             socketUdp.close();
         } catch (UnknownHostException e) {

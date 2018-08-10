@@ -24,8 +24,6 @@
     </RelativeLayout>
 
 
-
-
     <LinearLayout
         android:id="@+id/top_layout"
         android:layout_width="match_parent"
@@ -60,8 +58,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
-                android:visibility="gone"
-                android:background="@drawable/port_monitoring_icon_return_selected" />
+                android:background="@drawable/port_monitoring_icon_return_selected"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/current_fragment_name"
@@ -79,18 +77,19 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="326dp"
-                android:background="@drawable/port_monitoring_icon_listcontrol_selected" />
+                android:background="@drawable/port_monitoring_icon_listcontrol_selected"
+                android:visibility="gone" />
         </RelativeLayout>
 
     </LinearLayout>
 
 
     <android.support.v4.view.ViewPager
-        android:layout_below="@+id/top_layout"
         android:id="@+id/main_view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/rb_child"></android.support.v4.view.ViewPager>
+        android:layout_above="@+id/rb_child"
+        android:layout_below="@+id/top_layout"></android.support.v4.view.ViewPager>
 
 
     <RadioGroup
@@ -119,7 +118,7 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:button="@null"
-            android:drawableBottom="@drawable/port_network_intercom_selected"
+            android:drawableBottom="@drawable/port_video_selected_bg"
             android:gravity="center" />
 
         <RadioButton
@@ -129,8 +128,7 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:button="@null"
-
-            android:drawableBottom="@drawable/port_network_intercom_selected"
+            android:drawableBottom="@drawable/port_instant_messaging_selected"
             android:gravity="center" />
 
         <RadioButton
@@ -140,7 +138,17 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:button="@null"
-            android:drawableBottom="@drawable/port_network_intercom_selected"
+            android:drawableBottom="@drawable/port_alarm_btn_selected"
+            android:gravity="center" />
+
+
+        <RadioButton
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableBottom="@drawable/port_bullet_btn_selected"
             android:gravity="center" />
     </RadioGroup>
 

@@ -14,9 +14,9 @@ import com.zkth.mst.client.R;
  * Created by Root on 2018/7/9.
  * <p>
  * y底部的sliding滑动适配器
- *
+ * <p>
  * 根據type判定
- *
+ * <p>
  * type:
  * 0:網絡對講
  * 1:視頻監控
@@ -30,6 +30,8 @@ public class ButtomSlidingAdapter extends RecyclerView.Adapter<ButtomSlidingAdap
     Context context;
     int[] images;
     int type;
+
+    //回调
     private OnItemClickListener onItemClickListener;
 
     public ButtomSlidingAdapter(Context context, int[] images, int type) {
@@ -38,6 +40,7 @@ public class ButtomSlidingAdapter extends RecyclerView.Adapter<ButtomSlidingAdap
         this.type = type;
     }
 
+    //设置回调方法
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
@@ -45,19 +48,19 @@ public class ButtomSlidingAdapter extends RecyclerView.Adapter<ButtomSlidingAdap
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = View.inflate(parent.getContext(), R.layout.function3_button_activity, null);
-        //实例化ViewHolder
         ViewHolder holder = new ViewHolder(view);
-
         return holder;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-
-        holder.imageButton.setBackgroundResource(images[position]);
-        if (type ==0){
+        if (type == 0) {
             holder.imageButton.setChecked(true);
+        } else {
+            holder.imageButton.setChecked(false);
         }
+        holder.imageButton.setBackgroundResource(images[position]);
+
         if (onItemClickListener != null) {
 
             holder.imageButton.setOnClickListener(new View.OnClickListener() {
@@ -76,11 +79,14 @@ public class ButtomSlidingAdapter extends RecyclerView.Adapter<ButtomSlidingAdap
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         RadioButton imageButton;
+
         public ViewHolder(View itemView) {
             super(itemView);
             imageButton = itemView.findViewById(R.id.bottom_item_bg_btn);
         }
     }
+
+    //回调
     public interface OnItemClickListener {
         void onClick(int position);
     }

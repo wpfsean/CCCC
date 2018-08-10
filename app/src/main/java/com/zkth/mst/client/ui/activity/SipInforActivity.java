@@ -13,6 +13,8 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
@@ -57,29 +59,53 @@ public class SipInforActivity extends BaseActivity {
     //显示当前时间
     @BindView(R.id.sipinfor_time_layout)
     public TextView timeTextView;
-    //显示正在加载数据 的布局
-    @BindView(R.id.loading_data_show_layout)
-    RelativeLayout loading_data_show_layout;
+
+
     //底部button布局
     @BindView(R.id.bottom_sliding_recyclerview)
     public RecyclerView bottomSlidingView;
+
     //展示数据的gridview
     @BindView(R.id.gridview)
     public GridView gridview;
 
+
+    @BindView(R.id.sipinfor_image_loading)
+    ImageView loadingView;
+
+    @BindView(R.id.sipinfor_textview_layout)
+    TextView loadingTextView;
+
+    Animation mLoadingAnim = null;
+
     Context mContext;
-    //当前的选 项
+    TimeThread timeThread = null;
+
+    /**
+     * 当前的选项
+     */
     int selected = -1;
+
     //适配器
     SipInforAdapter ada = null;
+
     //cms获取 的sip数据
     List<SipBean> sipListResources = new ArrayList<>();
+
     //miniSipServer获取到的数据
     List<SipClient> mList = new ArrayList<>();
+
     //两集合的交集数据
     List<SipClient> adapterList = new ArrayList<>();
+
     //时间线程是否正在运行
     boolean threadIsRun = true;
+
+    /**
+     * 回传的groupID
+     */
+    int groupID;
+
     //handler刷新主Ui显示时间
     private Handler handler = new Handler() {
         @Override
@@ -89,59 +115,51 @@ public class SipInforActivity extends BaseActivity {
                 long time = System.currentTimeMillis();
                 Date date = new Date(time);
                 SimpleDateFormat timeD = new SimpleDateFormat("HH:mm:ss");
-                //timeTextView.setText(timeD.format(date).toString());
+                String currentTime = timeD.format(date).toString();
+                if (!TextUtils.isEmpty(currentTime))
+                    if (timeTextView != null)
+                        timeTextView.setText(currentTime);
             }
         }
     };
 
-
     @Override
     public void initView() {
         mContext = this;
+        mLoadingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
     }
 
     @Override
     public void initData() {
         //显示正在加载数据的布局
-        new Handler().post(new Runnable() {
+
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                loading_data_show_layout.setVisibility(View.VISIBLE);
+                loadingView.setVisibility(View.VISIBLE);
+                loadingTextView.setVisibility(View.VISIBLE);
+                loadingView.startAnimation(mLoadingAnim);
             }
         });
 
         //时间显示
-        TimeThread timeThread = new TimeThread();
+        timeThread = new TimeThread();
         new Thread(timeThread).start();
-        //传递过来 的groupid信息
-        final int groupID = getIntent().getIntExtra("group_id", 0);
-        if (groupID != 0) {
 
+        //传递过来 的groupid信息
+        groupID = getIntent().getIntExtra("group_id", 0);
+
+        if (groupID != 0) {
             if (NetworkUtils.isConnected()) {
-                RequestSipSourcesThread requestSipSourcesThread = new RequestSipSourcesThread(mContext, groupID + "", new RequestSipSourcesThread.SipListern() {
-                    @Override
-                    public void getDataListern(List<SipBean> sipList) {
-                        if (sipList != null && sipList.size() > 0) {
-                            sipListResources = sipList;
-                        } else {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ToastUtils.showShort("No get SipGroup infor !!!");
-                                }
-                            });
-                            WriteLogToFile.info("No get SipGroup infor !!!");
-                        }
-                    }
-                });
-                requestSipSourcesThread.start();
+                getSipGroupData();
             } else {
-                return;
+                showNoNetworkView();
             }
         } else {
-            showNoNetworkView();
+            showErrorView();
         }
-        //定时获取数据
+
+        //定时从sip服务器拿取数据
         TimeDo.getInstance().init(mContext, 3 * 1000);
         TimeDo.getInstance().start();
         TimeDo.getInstance().setListern(new TimeDo.Callback() {
@@ -167,12 +185,29 @@ public class SipInforActivity extends BaseActivity {
                             }
                         } catch (Exception e) {
                         }
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showErrorView();
+                            }
+                        });
                     }
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showErrorView();
+                        }
+                    });
                 }
 
+                //先清除要适配的数据
                 if (adapterList != null && adapterList.size() > 0) {
                     adapterList.clear();
                 }
+
+                //获取要展示的数据
                 for (int i = 0; i < mList.size(); i++) {
                     for (int j = 0; j < sipListResources.size(); j++) {
                         if (mList.get(i).getUsrname().equals(sipListResources.get(j).getNumber())) {
@@ -183,30 +218,43 @@ public class SipInforActivity extends BaseActivity {
                         }
                     }
                 }
-                List<SipClient> dd = adapterList;
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
                         if (adapterList != null && adapterList.size() > 0) {
                             if (ada != null) {
                                 ada = null;
                             }
-                            if (loading_data_show_layout != null)
-                                loading_data_show_layout.setVisibility(View.GONE);
 
+                            //展示数据
                             ada = new SipInforAdapter(mContext);
-                            if (ada != null) {
-                                if (gridview != null) {
-                                    gridview.setAdapter(ada);
-                                    gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                        @Override
-                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                            ada.setSeclection(position);
-                                            ada.notifyDataSetChanged();
-                                            selected = position;
+                            if (gridview != null) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (loadingView != null) {
+                                            loadingView.setVisibility(View.GONE);
+                                            loadingView.clearAnimation();
                                         }
-                                    });
-                                }
+
+                                        if (loadingTextView != null)
+                                            loadingTextView.setVisibility(View.GONE);
+                                        // loadingView.clearAnimation();
+//                                    loadingView.setVisibility(View.GONE);
+//                                    loadingTextView.setVisibility(View.GONE);
+                                    }
+                                });
+                                gridview.setAdapter(ada);
+                                gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                        ada.setSeclection(position);
+                                        ada.notifyDataSetChanged();
+                                        selected = position;
+                                    }
+                                });
                             }
                         }
                     }
@@ -214,6 +262,28 @@ public class SipInforActivity extends BaseActivity {
             }
         });
         initBottomData();
+    }
+
+    /**
+     * 获取 sipGroup数据
+     */
+    private void getSipGroupData() {
+        RequestSipSourcesThread requestSipSourcesThread = new RequestSipSourcesThread(mContext, groupID + "", new RequestSipSourcesThread.SipListern() {
+            @Override
+            public void getDataListern(List<SipBean> sipList) {
+                if (sipList != null && sipList.size() > 0) {
+                    sipListResources = sipList;
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showEmptyView();
+                        }
+                    });
+                }
+            }
+        });
+        requestSipSourcesThread.start();
     }
 
     @Override
@@ -240,6 +310,10 @@ public class SipInforActivity extends BaseActivity {
         }
     }
 
+
+    /**
+     * 显示数据适配器
+     */
     class SipInforAdapter extends BaseAdapter {
         private int clickTemp = -1;
         private LayoutInflater layoutInflater;
@@ -280,7 +354,7 @@ public class SipInforActivity extends BaseActivity {
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            String native_name = "7008";
+            String native_name = "7007";
 
             if (adapterList != null && adapterList.size() > 0) {
                 if (!TextUtils.isEmpty(native_name)) {
@@ -323,10 +397,16 @@ public class SipInforActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (ada != null) {
+        timeThread = null;
+        threadIsRun = false;
+        handler.removeCallbacks(null);
+        if (ada != null)
             ada = null;
-            SipInforActivity.this.finish();
-        }
+
+        loadingView.clearAnimation();
+        loadingView.setVisibility(View.GONE);
+        loadingTextView.setVisibility(View.GONE);
+        SipInforActivity.this.finish();
     }
 
     /**

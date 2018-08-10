@@ -36,7 +36,7 @@ public class DbConfig {
 
     public static DbConfig getInstance() {
         if (instance == null) {
-            synchronized (TimeDo.class) {
+            synchronized (DbConfig.class) {
                 if (instance == null) {
                     instance = new DbConfig();
                     databaseHelper = new DatabaseHelper(App.getApplication());

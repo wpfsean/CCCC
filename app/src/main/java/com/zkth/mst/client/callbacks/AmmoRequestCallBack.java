@@ -1,6 +1,7 @@
 package com.zkth.mst.client.callbacks;
 
 import com.zkth.mst.client.base.AppConfig;
+import com.zkth.mst.client.base.DbConfig;
 import com.zkth.mst.client.utils.ByteUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,9 @@ import java.net.Socket;
 public class AmmoRequestCallBack implements Runnable {
 	GetDataListern listern;
 
+	String dbPort;
+	String dbServerIp;
+
 	public interface GetDataListern {
 		void getDataInformation(String result);
 	}
@@ -29,6 +33,11 @@ public class AmmoRequestCallBack implements Runnable {
 	@Override
 	public void run() {
 		synchronized (this) {
+
+			dbServerIp = DbConfig.getInstance().getData(11);
+			dbPort = DbConfig.getInstance().getData(6);
+
+
 			Socket socket = null;
 			byte[] request = new byte[68];
 			// 数据头
@@ -64,7 +73,7 @@ public class AmmoRequestCallBack implements Runnable {
 			System.arraycopy(sender, 0, request, 20, 48);
 
 			try {
-				socket = new Socket(AppConfig.alarm_server_ip, AppConfig.alarm_server_port);
+				socket = new Socket(dbServerIp,Integer.parseInt(dbPort));
 				socket.setSoTimeout(6*1000);
 				OutputStream os = socket.getOutputStream();
 				os.write(request);

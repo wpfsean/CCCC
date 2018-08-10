@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zkth.mst.client.R;
+import com.zkth.mst.client.adapter.ButtomSlidingAdapter;
 import com.zkth.mst.client.base.AppConfig;
 import com.zkth.mst.client.base.BaseActivity;
 import com.zkth.mst.client.entity.SipBean;
@@ -401,13 +402,12 @@ public class SingleCallActivity extends BaseActivity implements View.OnClickList
 
 
     private void initBottomData() {
-//
-//        GridLayoutManager gridLayoutManager = new GridLayoutManager(SingleCallActivity.this, 1);
-//        gridLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-//        bottomSlidingView.setLayoutManager(gridLayoutManager);
-//        int images[] = new int[]{R.drawable.port_network_intercom_selected, R.drawable.port_instant_messaging_selected, R.drawable.port_video_surveillance_selected, R.drawable.port_alarm_btn_selected, R.drawable.port_bullet_btn_selected};
-//        ButtomSlidingAdapter ada = new ButtomSlidingAdapter(SingleCallActivity.this, images, 0);
-//        bottomSlidingView.setAdapter(ada);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(SingleCallActivity.this, 1);
+        gridLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        bottomSlidingView.setLayoutManager(gridLayoutManager);
+        int images[] = new int[]{R.drawable.port_network_intercom_selected, R.drawable.port_instant_messaging_selected, R.drawable.port_video_surveillance_selected, R.drawable.port_alarm_btn_selected, R.drawable.port_bullet_btn_selected};
+        ButtomSlidingAdapter ada = new ButtomSlidingAdapter(SingleCallActivity.this, images, 0);
+        bottomSlidingView.setAdapter(ada);
 
     }
 

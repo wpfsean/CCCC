@@ -1,5 +1,8 @@
 package com.zkth.mst.client.callbacks;
 
+import android.text.TextUtils;
+
+import com.zkth.mst.client.base.DbConfig;
 import com.zkth.mst.client.db.Logutils;
 import com.zkth.mst.client.entity.AlarmBen;
 import com.zkth.mst.client.entity.VideoBen;
@@ -7,6 +10,7 @@ import com.zkth.mst.client.utils.ByteUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -27,10 +31,14 @@ public class ReceiverServerAlarm extends Thread {
     @Override
     public void run() {
         super.run();
-
+        int port =2000;
+        String dbPort = DbConfig.getInstance().getData(6);
+        if (!TextUtils.isEmpty(dbPort)){
+            port = Integer.parseInt(dbPort);
+        }
 
         try {
-            ServerSocket serverSocket = new ServerSocket(2000, 3);
+            ServerSocket serverSocket = new ServerSocket(port, 3);
             InputStream in = null;
             while (true) {
                 Socket socket = null;

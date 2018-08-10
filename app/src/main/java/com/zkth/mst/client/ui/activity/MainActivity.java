@@ -712,8 +712,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                                         contentValues.put("sip_num", sipNum);
                                         contentValues.put("sip_pwd", sipPwd);
                                         contentValues.put("sip_server", sipServer);
-                                        db.update("users", contentValues, "name = ?", new String[]{"admin"});
-                                        Logutils.i("更新成功");
+                                        db.update("users", contentValues, "_id = ?", new String[]{"1"});
                                     }
                                 }
                                 break;

@@ -21,6 +21,8 @@ public class TimeDo implements Runnable {
     private long time;
 
     private TimeDo() {
+
+
         mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     }
 
@@ -57,8 +59,12 @@ public class TimeDo implements Runnable {
     }
 
     public void start() {
-        mScheduledExecutorService.scheduleWithFixedDelay(this, 0L, time, TimeUnit.MILLISECONDS);
+
+        if (!mScheduledExecutorService.isShutdown()) {
+            mScheduledExecutorService.scheduleWithFixedDelay(this, 0L, time, TimeUnit.MILLISECONDS);
+        }
     }
+
 
 
     public interface  Callback{

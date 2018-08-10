@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BaseProject</string>
+    <string name="app_name">App竖屏</string>
 
     <!-- 加载状态相关 -->
     <string name="view_empty">没有数据~</string>

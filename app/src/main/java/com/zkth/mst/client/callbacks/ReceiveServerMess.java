@@ -3,6 +3,7 @@ package com.zkth.mst.client.callbacks;
 import android.text.TextUtils;
 
 
+import com.zkth.mst.client.base.DbConfig;
 import com.zkth.mst.client.db.Logutils;
 import com.zkth.mst.client.utils.ByteUtils;
 import java.net.DatagramPacket;
@@ -23,10 +24,15 @@ public class ReceiveServerMess implements Runnable {
 
     @Override
     public void run() {
+        int port =2000;
         DatagramSocket ds = null;
+        String dbPort = DbConfig.getInstance().getData(6);
+        if (!TextUtils.isEmpty(dbPort)){
+            port = Integer.parseInt(dbPort);
+        }
         try {
             while (true) {
-                ds = new DatagramSocket(2000);
+                ds = new DatagramSocket(port);
                 byte bytes[] = new byte[1024];
                 DatagramPacket dp = new DatagramPacket(bytes, bytes.length);
                 ds.receive(dp);

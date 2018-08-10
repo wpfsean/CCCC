@@ -14,13 +14,24 @@ import java.util.List;
 
 /**
  * SipGroup分组适配器
- *
+ * <p>
  * Created by Root on 2018/5/21.
  */
 
 public class SipGroupAdapter extends RecyclerView.Adapter<SipGroupAdapter.GridViewHolder> {
+    /**
+     * 上下文对象
+     */
     private Context mContext;
+
+    /**
+     * 盛放数据的集合
+     */
     private List<SipGroupBean> mDateBeen;
+
+    /**
+     * 回调接口
+     */
     private MyItemClickListener mItemClickListener;
 
     public SipGroupAdapter(Context context, List<SipGroupBean> dateBeen) {
@@ -30,8 +41,8 @@ public class SipGroupAdapter extends RecyclerView.Adapter<SipGroupAdapter.GridVi
 
     @Override
     public GridViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View    itemView = View.inflate(mContext, R.layout.sip_group_recyclearview_item, null);
-        GridViewHolder gridViewHolder = new GridViewHolder(itemView,mItemClickListener);
+        View itemView = View.inflate(mContext, R.layout.sip_group_recyclearview_item, null);
+        GridViewHolder gridViewHolder = new GridViewHolder(itemView, mItemClickListener);
         return gridViewHolder;
     }
 
@@ -41,17 +52,14 @@ public class SipGroupAdapter extends RecyclerView.Adapter<SipGroupAdapter.GridVi
         holder.setData(dateBean);
     }
 
-    //决定RecyclerView有多少条item
     @Override
     public int getItemCount() {
-//数据不为null，有几条数据就显示几条数据
         if (mDateBeen != null && mDateBeen.size() > 0) {
             return mDateBeen.size();
         }
         return 0;
     }
 
-    //自动帮我们写的ViewHolder，参数：View布局对象
     public static class GridViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private MyItemClickListener mListener;
         private final TextView item_title;
@@ -61,7 +69,6 @@ public class SipGroupAdapter extends RecyclerView.Adapter<SipGroupAdapter.GridVi
             item_title = (TextView) itemView.findViewById(R.id.show_sip_group_name);
             this.mListener = myItemClickListener;
             itemView.setOnClickListener(this);
-
         }
 
         public void setData(SipGroupBean data) {
@@ -73,18 +80,15 @@ public class SipGroupAdapter extends RecyclerView.Adapter<SipGroupAdapter.GridVi
             if (mListener != null) {
                 mListener.onItemClick(v, getPosition());
             }
-
         }
     }
+
+    //item点击回调
     public interface MyItemClickListener {
         void onItemClick(View view, int position);
     }
 
-    /**
-     * 在activity里面adapter就是调用的这个方法,将点击事件监听传递过来,并赋值给全局的监听
-     *
-     * @param myItemClickListener
-     */
+    //设置回调方式
     public void setItemClickListener(MyItemClickListener myItemClickListener) {
         this.mItemClickListener = myItemClickListener;
     }

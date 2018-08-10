@@ -49,9 +49,14 @@ import butterknife.OnClick;
 
 public class LoginActivity extends BaseActivity {
 
-
+    /**
+     * 加载时的动画
+     */
     Animation mLoadingAnim;
-    //整个项目可能用到的权限
+
+    /**
+     * 整个项目可能用到的权限
+     */
     String[] permissions = new String[]{
             Manifest.permission.USE_SIP,
             Manifest.permission.CAMERA,
@@ -62,13 +67,22 @@ public class LoginActivity extends BaseActivity {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
-    //存放未授权的权限
+
+    /**
+     * 存放未授权的权限
+     */
     List<String> mPermissionList = new ArrayList<>();
+
+    /**
+     * 地图监听
+     */
     MyLocationListener mMyLocationListener;
 
+    //断网提示
     @BindView(R.id.no_network_layout)
     RelativeLayout no_network_layout;
 
+    //进度动画
     @BindView(R.id.image_loading)
     ImageView image_loading;
 
@@ -76,32 +90,47 @@ public class LoginActivity extends BaseActivity {
     @BindView(R.id.loin_error_infor_layout)
     TextView errorInfor;
 
+    //登录按钮
     @BindView(R.id.userlogin_button_layout)
     Button userlogin_button_layout;
 
     //用户名
     @BindView(R.id.edit_username_layout)
     EditText userName;
+
     //密码
     @BindView(R.id.edit_userpass_layout)
     EditText userPwd;
+
     //记住密码Checkbox
     @BindView(R.id.remember_pass_layout)
     Checkable rememberPwd;
+
     //自动登录CheckBox
     @BindView(R.id.auto_login_layout)
     Checkable autoLoginCheckBox;
+
     //服务器
     @BindView(R.id.edit_serviceip_layout)
     EditText serverIp;
-    //updateServerIpCheckBox
+
+    //修改服务器的checkbox
     @BindView(R.id.remembe_serverip_layout)
     CheckBox updateServerIpCheckBox;
 
+    /**
+     * 地图对象
+     */
     public LocationClient mLocationClient = null;
 
+    /**
+     * 本机iP
+     */
     String nativeIP = "";
 
+    /**
+     * 数据库对象
+     */
     DatabaseHelper databaseHelper;
 
     @Override
@@ -111,9 +140,13 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void initView() {
+        //验证权限
         verifyPermissions();
     }
 
+    /**
+     * 判断权限是否需要申请
+     */
     private void verifyPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermission();
@@ -122,7 +155,12 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Init数据
+     */
     private void initThisPageData() {
+
+        //获取地理位置
         LocationClientOption option = new LocationClientOption();
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
         option.setCoorType("bd09ll");
@@ -202,12 +240,19 @@ public class LoginActivity extends BaseActivity {
         Logutils.i(DbConfig.getInstance().getData(11) + "报警ip");
         Logutils.i(DbConfig.getInstance().getData(12) + "服务器ip");
 
-
+        //获取本机的Ip
         nativeIP = NetworkUtils.getIPAddress(true);
+
+        //动画
         mLoadingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
 
+        //初始化数据库对象
         databaseHelper = new DatabaseHelper(LoginActivity.this);
+
+        //判断上次是否是记住密码
         boolean isrePwd = (boolean) SharedPreferencesUtils.getObject(LoginActivity.this, "isremember", false);
+
+        //如果是记住密码就从数据库中读取信息并显示
         if (isrePwd == true) {
             rememberPwd.setChecked(true);
             String db_name = DbConfig.getInstance().getData(0);
@@ -299,7 +344,7 @@ public class LoginActivity extends BaseActivity {
     //登录到cms服务器
     @OnClick(R.id.userlogin_button_layout)
     public void loginCMS(View view) {
-
+        errorInfor.setText("");
 
         name = userName.getText().toString().trim();
         pass = userPwd.getText().toString().trim();
@@ -343,6 +388,7 @@ public class LoginActivity extends BaseActivity {
                                     errorInfor.setText("");
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                     LoginActivity.this.startActivity(intent);
+                                    LoginActivity.this.finish();
                                 }
                             });
                         } else {

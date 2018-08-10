@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.zkth.mst.client.base.App;
 import com.zkth.mst.client.base.AppConfig;
+import com.zkth.mst.client.base.DbConfig;
 import com.zkth.mst.client.entity.SipBean;
 import com.zkth.mst.client.entity.VideoBen;
 import com.zkth.mst.client.utils.ByteUtils;
@@ -13,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -54,12 +56,22 @@ public class RequestSipSourcesThread implements Runnable {
             bys[6] = 0;
             bys[7] = 0;
 
-            String name = "admin/pass/19.0.0.77/"+type;
-            byte[] na = name.getBytes(AppConfig.dataFormat);
+            String data = "";
+            String dbUser = DbConfig.getInstance().getData(0);
+            String dbPwd = DbConfig.getInstance().getData(1);
+            String dbNativeIp = DbConfig.getInstance().getData(3);
+            String dbServerIp = DbConfig.getInstance().getData(12);
+            String dbPort = DbConfig.getInstance().getData(5);
+
+            if (!TextUtils.isEmpty(dbUser)&& !TextUtils.isEmpty(dbPwd) && !TextUtils.isEmpty(dbNativeIp) && !TextUtils.isEmpty(dbServerIp) && !TextUtils.isEmpty(dbPort)){
+                data = dbUser+"/"+dbPwd+"/"+dbNativeIp+"/"+type;
+            }
+
+            byte[] na = data.getBytes(AppConfig.dataFormat);
             for (int i = 0; i < na.length; i++) {
                 bys[i + 8] = na[i];
             }
-                socket = new Socket("19.0.0.28", AppConfig.server_port);
+                socket = new Socket(dbServerIp, Integer.parseInt(dbPort));
             OutputStream os = socket.getOutputStream();
             os.write(bys);
             os.flush();

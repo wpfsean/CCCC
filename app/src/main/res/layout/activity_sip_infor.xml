@@ -27,7 +27,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:text="上午9:00"
+                    android:text=""
                     android:textColor="@color/black" />
             </RelativeLayout>
             <!--标题 tilte-->
@@ -141,19 +141,28 @@
         android:layout_height="match_parent"
         android:visibility="visible">
 
-        <ProgressBar
-            android:id="@+id/loading_data_progressbar_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:indeterminateTint="#d38fdb" />
+        <ImageView
+            android:id="@+id/sipinfor_image_loading"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignTop="@+id/remembe_serverip_layout"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="数据加载中。。。"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_loading"
+            android:visibility="gone" />
 
         <TextView
+            android:id="@+id/sipinfor_textview_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/loading_data_progressbar_layout"
+            android:layout_below="@+id/sipinfor_image_loading"
             android:layout_centerHorizontal="true"
-            android:text="正在加载 数据..." />
+            android:layout_marginTop="15dp"
+            android:text="正在加载数据..."
+            android:visibility="gone"
+            android:textColor="@color/black" />
 
     </RelativeLayout>
 </FrameLayout>
