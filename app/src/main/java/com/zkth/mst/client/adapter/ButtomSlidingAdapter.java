@@ -54,12 +54,14 @@ public class ButtomSlidingAdapter extends RecyclerView.Adapter<ButtomSlidingAdap
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
+
+        holder.imageButton.setBackgroundResource(images[position]);
         if (type == 0) {
             holder.imageButton.setChecked(true);
         } else {
             holder.imageButton.setChecked(false);
         }
-        holder.imageButton.setBackgroundResource(images[position]);
+
 
         if (onItemClickListener != null) {
 

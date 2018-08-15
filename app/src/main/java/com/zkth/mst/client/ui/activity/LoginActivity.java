@@ -226,19 +226,20 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void initData() {
 
-        Logutils.i(DbConfig.getInstance().getData(0) + "当前用户名");
-        Logutils.i(DbConfig.getInstance().getData(1) + "当前密码");
-        Logutils.i(DbConfig.getInstance().getData(2) + "用户登录时间");
-        Logutils.i(DbConfig.getInstance().getData(3) + "本机ip");
-        Logutils.i(DbConfig.getInstance().getData(4) + "心跳端口");
-        Logutils.i(DbConfig.getInstance().getData(5) + "登录端口");
-        Logutils.i(DbConfig.getInstance().getData(6) + "报警端口");
-        Logutils.i(DbConfig.getInstance().getData(7) + "当前sip名称");
-        Logutils.i(DbConfig.getInstance().getData(8) + "当前sip号码");
-        Logutils.i(DbConfig.getInstance().getData(9) + "sip服务器地址");
-        Logutils.i(DbConfig.getInstance().getData(10) + "sip密码");
-        Logutils.i(DbConfig.getInstance().getData(11) + "报警ip");
-        Logutils.i(DbConfig.getInstance().getData(12) + "服务器ip");
+        //测试（从本地数据库中取出数据）
+//        Logutils.i(DbConfig.getInstance().getData(0) + "当前用户名");
+//        Logutils.i(DbConfig.getInstance().getData(1) + "当前密码");
+//        Logutils.i(DbConfig.getInstance().getData(2) + "用户登录时间");
+//        Logutils.i(DbConfig.getInstance().getData(3) + "本机ip");
+//        Logutils.i(DbConfig.getInstance().getData(4) + "心跳端口");
+//        Logutils.i(DbConfig.getInstance().getData(5) + "登录端口");
+//        Logutils.i(DbConfig.getInstance().getData(6) + "报警端口");
+//        Logutils.i(DbConfig.getInstance().getData(7) + "当前sip名称");
+//        Logutils.i(DbConfig.getInstance().getData(8) + "当前sip号码");
+//        Logutils.i(DbConfig.getInstance().getData(9) + "sip服务器地址");
+//        Logutils.i(DbConfig.getInstance().getData(10) + "sip密码");
+//        Logutils.i(DbConfig.getInstance().getData(11) + "报警ip");
+//        Logutils.i(DbConfig.getInstance().getData(12) + "服务器ip");
 
         //获取本机的Ip
         nativeIP = NetworkUtils.getIPAddress(true);
@@ -259,7 +260,6 @@ public class LoginActivity extends BaseActivity {
             if (!TextUtils.isEmpty(db_name)) {
                 userName.setText(db_name);
             }
-
             String db_pwd = DbConfig.getInstance().getData(1);
             if (!TextUtils.isEmpty(db_pwd)) {
                 userPwd.setText(db_pwd);
@@ -276,9 +276,11 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // mLocationClient.unRegisterLocationListener(mMyLocationListener);
     }
 
+    /**
+     * 百度地图地址回调
+     */
     public class MyLocationListener extends BDAbstractLocationListener {
         @Override
         public void onReceiveLocation(BDLocation location) {
@@ -301,6 +303,9 @@ public class LoginActivity extends BaseActivity {
     }
 
 
+    /**
+     * 出现网络异常时提示
+     */
     @Override
     public void onNetChange(int state, String name) {
         if (state != 0 && state != 1) {
@@ -345,53 +350,62 @@ public class LoginActivity extends BaseActivity {
     @OnClick(R.id.userlogin_button_layout)
     public void loginCMS(View view) {
         errorInfor.setText("");
-
+        //获取当前输入框内的内容
         name = userName.getText().toString().trim();
         pass = userPwd.getText().toString().trim();
         server_IP = serverIp.getText().toString().trim();
-
+        //判断输入框是否为null
         if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(pass) && !TextUtils.isEmpty(server_IP)) {
+            //判断网络是否连接成功
             if (NetworkUtils.isConnected()) {
+                //加载动画显示
                 image_loading.setVisibility(View.VISIBLE);
                 image_loading.startAnimation(mLoadingAnim);
-
+                //子线程进行登陆并回调返回登录结果
                 LoginPassThread loginPassThread = new LoginPassThread(name, pass, nativeIP, new LoginPassThread.LoginCallback() {
                     @Override
                     public void getLoginStatus(int count) {
+                        //如果返回的结果大于0就说明登录 成功
                         if (count > 0) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     isRemember = rememberPwd.isChecked();
                                     isAuto = autoLoginCheckBox.isChecked();
+                                    //判断当前是否记住密码，如果记住密码就把配置信息提前插入数据库
                                     if (isRemember == true)
+                                        //保存记住密码的状态
                                         SharedPreferencesUtils.putObject(LoginActivity.this, "isremember", isRemember);
-                                    User user = new User();
-                                    user.setServerip(server_IP);
-                                    user.setName(name);
-                                    user.setPass(pass);
-                                    user.setLogin_port("2010");
-                                    user.setAlarm_ip("19.0.0.27");
-                                    user.setAlarm_port("2000");
-                                    user.setHeader_port("2020");
-                                    user.setLogin_time(new Date().toString());
-                                    if (!TextUtils.isEmpty(nativeIP)) {
-                                        user.setNativeip(nativeIP);
-                                    } else {
-                                        user.setNativeip("127.0.0.1");
-                                    }
-                                    databaseHelper.insertOneUser(user);
-                                    Logutils.i("insert success");
-                                    image_loading.setVisibility(View.GONE);
-                                    image_loading.clearAnimation();
-                                    errorInfor.setVisibility(View.VISIBLE);
-                                    errorInfor.setText("");
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    LoginActivity.this.startActivity(intent);
-                                    LoginActivity.this.finish();
+                                        User user = new User();
+                                        user.setServerip(server_IP);
+                                        user.setName(name);
+                                        user.setPass(pass);
+                                        user.setLogin_port("2010");
+                                        user.setAlarm_ip("19.0.0.27");
+                                        user.setAlarm_port("2000");
+                                        user.setHeader_port("2020");
+                                        user.setLogin_time(new Date().toString());
+                                        if (!TextUtils.isEmpty(nativeIP)) {
+                                            user.setNativeip(nativeIP);
+                                        } else {
+                                            user.setNativeip("127.0.0.1");
+                                        }
+                                        //向数据库中的users配置表中插入数据
+                                        databaseHelper.insertOneUser(user);
+                                        Logutils.i("insert success");
+                                        //加载动画消失并提示登录成功
+                                        image_loading.setVisibility(View.GONE);
+                                        image_loading.clearAnimation();
+                                        errorInfor.setVisibility(View.VISIBLE);
+                                        errorInfor.setText("");
+                                        //跳转到主页面并finish本页面
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        LoginActivity.this.startActivity(intent);
+                                        LoginActivity.this.finish();
                                 }
                             });
                         } else {
+                            //提示加载失败
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -406,9 +420,11 @@ public class LoginActivity extends BaseActivity {
                 });
                 loginPassThread.start();
             } else {
+                //显示没网界面
                 showNoNetworkView();
             }
         } else {
+            //提示信息缺失
             image_loading.setVisibility(View.GONE);
             image_loading.clearAnimation();
             errorInfor.setVisibility(View.VISIBLE);

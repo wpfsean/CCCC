@@ -15,7 +15,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="15.3dp"
             android:layout_marginRight="15.3dp"
-            android:checked="true"
+            android:checked="false"
             android:button="@null"
             />
     </RelativeLayout>

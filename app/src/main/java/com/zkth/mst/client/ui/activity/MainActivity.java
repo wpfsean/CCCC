@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -60,9 +61,14 @@ import com.zkth.mst.client.utils.LogUtils;
 import com.zkth.mst.client.utils.NetworkUtils;
 import com.zkth.mst.client.utils.PhoneUtils;
 import com.zkth.mst.client.utils.SharedPreferencesUtils;
+import com.zkth.mst.client.utils.SipHttpUtils;
 import com.zkth.mst.client.utils.ToastUtils;
+import com.zkth.mst.client.utils.VibratorUtils;
 import com.zkth.mst.client.utils.WriteLogToFile;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.linphone.core.LinphoneCall;
 
 import java.io.IOException;
@@ -79,48 +85,136 @@ import cn.nodemedia.NodePlayerView;
 
 public class MainActivity extends BaseActivity implements Camera.PreviewCallback {
 
-    private static final String TAG = "MainActivity";
+    /**
+     * 相机对象
+     */
     private Camera mCamera;
+
+    /**
+     * 显示摄像头图像 的surfaceviewHolder
+     */
     SurfaceHolder surfaceHolder;
-    private static int cameraId = 0;//默认后置摄像头
+
+    /**
+     * 当前是哪个摄像头
+     * 0：后
+     * 1：前
+     */
+    private static int cameraId = 0;
+
+    /**
+     * 远端显示本机采集图像的rtsp地址
+     */
     private String RtspAddress;
+
+    /**
+     * h26编码
+     */
     private VideoMediaCodec mVideoMediaCodec;
+
+    /**
+     * 传输rtsp的server
+     */
     private RtspServer mRtspServer;
+
+    /**
+     * 是否已绑定service
+     */
     boolean isBandService = false;
+
+    /**
+     * 是否正在录像
+     */
     boolean isRecording;
+
+    /**
+     * 播放值班室视频的播放器
+     */
     NodePlayer nodePlayer;
+
+    /**
+     * 显示当前 的通话时间
+     */
     TextView tv;
+
+    /**
+     * 是否正在向外播打电话
+     */
     boolean isCanCallPhone;
+
+    /**
+     * 记录sip资源的数量
+     */
     int sipResourcesNum = 0;
+
+    /**
+     * 记录video资源的数据
+     */
     int videoResourcesNum = -1;
 
+    /**
+     * 加载动画
+     */
+    Animation mLoadingAnim;
 
-    //模拟值班室信息
-    String duryName = "7002";//值班值号码信息
-    String duryRtsp = "rtmp://live.hkstv.hk.lxdns.com/live/hks"; //值班室的画面信息
+    /**
+     * 模拟值班室名称
+     */
+    String duryName = "";//值班值号码信息
 
+    /**
+     * 模拟值班室的号码
+     */
+    String duryNumber = "";
+
+    /**
+     * 模拟值班室的视频 地址
+     */
+    String duryRtsp = "";
+
+
+    //无网的提示
     @BindView(R.id.no_network_layout)
     RelativeLayout no_network_layout;
+
+    //加载动画的布局
     @BindView(R.id.main_loading_layout)
     ImageView main_loading_layout;
 
+    //加载提示信息的布局
     @BindView(R.id.main_loading_textview_layout)
     TextView main_loading_textview_layout;
 
+    //时间显示 的布局
     @BindView(R.id.main_incon_time)
     TextView main_incon_time;
 
-
-    Animation mLoadingAnim;
+    /**
+     * 存放 sip资源 的集合
+     */
     List<SipVideo> sipData = new ArrayList<>();
+
+    /**
+     * 存放 video资源 的集合
+     */
     List<Device> dataSources = new ArrayList<>();
+
+    /**
+     * 本机的ip
+     */
     String ip = "";
+
+    /**
+     * 显示时间的显示是否正在运行
+     */
     boolean threadIsRun = true;
 
 
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+
+            //显示当前 的通话时间
             if (msg.what == 1) {
                 num++;
                 runOnUiThread(new Runnable() {
@@ -129,7 +223,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                         tv.setText(PhoneUtils.getTime(num) + "");
                     }
                 });
-            } else if (msg.what == 111) {
+            } else if (msg.what == 111) {//把获取到的sip信息存放 到本地
                 Bundle bundle = msg.getData();
                 SipVideo mSipVideo = (SipVideo) bundle.getSerializable("sipVideo");
                 sipData.add(mSipVideo);
@@ -141,7 +235,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                         Logutils.i("success sip ");
                     }
                 }
-            } else if (msg.what == 1000) {
+            } else if (msg.what == 1000) {//把获取 的video资源信息存放到本地
                 //onvif数据处理
                 Bundle bundle = msg.getData();
                 Device device = (Device) bundle.getSerializable("device");
@@ -155,7 +249,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                     SharedPreferencesUtils.putObject(MainActivity.this, "result", str);
                     Logutils.i("success video ");
                 }
-            } else if (msg.what == 1001) {
+            } else if (msg.what == 1001) {//显示当前 的系统时间
                 long time = System.currentTimeMillis();
                 Date date = new Date(time);
                 SimpleDateFormat timeD = new SimpleDateFormat("HH:mm:ss");
@@ -175,20 +269,25 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
 
     @Override
     public void initData() {
+
         //启动心跳服务15秒后开始发送心跳
         startService(new Intent(this, SendHbService.class));
+
         //时间显示
         TimeThread timeThread = new TimeThread();
         new Thread(timeThread).start();
 
-
+        //获取本机的ip
         ip = NetworkUtils.getIPAddress(true);
-        RtspAddress = "rtsp://" + "19.0.0.77" + ":" + RtspServer.DEFAULT_RTSP_PORT;
+
+        //本机图像传输的rtsp地址
+        RtspAddress = "rtsp://" + ip + ":" + RtspServer.DEFAULT_RTSP_PORT;
         mVideoMediaCodec = new VideoMediaCodec();
-        if (RtspAddress != null) {
-            Log.i("tag", "地址: " + RtspAddress);
-        }
+
+        //加载动画
         mLoadingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
+
+        //启动cpu和ram监测
         CpuAndRam.getInstance().init(MainActivity.this, 5 * 1000);
         CpuAndRam.getInstance().start();
 
@@ -198,6 +297,45 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
         getNativeSipInformation();
         //获取所有的视频 资源并解析rtsp
         getAllVideoResoucesInformation();
+
+        if (TextUtils.isEmpty(duryName) || TextUtils.isEmpty(duryNumber) || TextUtils.isEmpty(duryRtsp))
+            //获取值班室信息
+            requestDutyRoomInformation();
+
+    }
+
+    /**
+     * 获取值班室信息
+     */
+    private void requestDutyRoomInformation() {
+
+        SipHttpUtils request = new SipHttpUtils("http://wesk.top/zhketech/dutyRoomData.php", new SipHttpUtils.GetHttpData() {
+            @Override
+            public void httpData(String result) {
+
+                String re = result;
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String code = jsonObject.getString("code");
+                    if (code.equals("1")) {
+                        JSONArray jsonArray = jsonObject.getJSONArray("data");
+                        JSONObject js = jsonArray.getJSONObject(0);
+                        duryName = js.getString("name");
+                        duryNumber = js.getString("number");
+                        duryRtsp = js.getString("server");
+                    } else {
+                        duryName = "";
+                        duryNumber = "";
+                        duryRtsp = "";
+                    }
+                } catch (JSONException e) {
+                    duryName = "";
+                    duryNumber = "";
+                    duryRtsp = "";
+                }
+            }
+        });
+        request.start();
 
     }
 
@@ -216,44 +354,49 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
     public void onclickEvent(View view) {
         Intent intent = new Intent();
         switch (view.getId()) {
-            case R.id.button_intercom:
-                LogUtils.i("TAG", AppConfig.cpu + "///");
-                LogUtils.i("TAG", AppConfig.ram + "///");
-                LogUtils.i("TAG", AppConfig.battery + "///");
-                LogUtils.i("TAG", AppConfig.wifi + "///");
-                LogUtils.i("TAG", AppConfig.lat + "///");
-                LogUtils.i("TAG", AppConfig.log + "///");
-
-                LogUtils.i("TAG", AppConfig.sipName + "///");
-                LogUtils.i("TAG", AppConfig.sipNum + "///");
-                LogUtils.i("TAG", AppConfig.sipPwd + "///");
-                LogUtils.i("TAG", AppConfig.sipServer + "///");
+            case R.id.button_intercom://sip通话
+//                LogUtils.i("TAG", AppConfig.cpu + "///");
+//                LogUtils.i("TAG", AppConfig.ram + "///");
+//                LogUtils.i("TAG", AppConfig.battery + "///");
+//                LogUtils.i("TAG", AppConfig.wifi + "///");
+//                LogUtils.i("TAG", AppConfig.lat + "///");
+//                LogUtils.i("TAG", AppConfig.log + "///");
+//                LogUtils.i("TAG", AppConfig.sipName + "///");
+//                LogUtils.i("TAG", AppConfig.sipNum + "///");
+//                LogUtils.i("TAG", AppConfig.sipPwd + "///");
+//                LogUtils.i("TAG", AppConfig.sipServer + "///");
+                VibratorUtils.Vibrate(MainActivity.this, 500);
                 intent.setClass(MainActivity.this, MainFragmentActivity.class);
                 intent.putExtra("current", 0);
                 startActivity(intent);
 
                 break;
-            case R.id.button_video:
+            case R.id.button_video://视频 监控
+                VibratorUtils.Vibrate(MainActivity.this, 500);
                 intent.setClass(MainActivity.this, MainFragmentActivity.class);
                 intent.putExtra("current", 1);
                 startActivity(intent);
 
 
                 break;
-            case R.id.button_applyforplay:
+            case R.id.button_applyforplay://申请开箱
+                VibratorUtils.Vibrate(MainActivity.this, 500);
                 applyForUnpacking();
                 break;
-            case R.id.button_chat:
+            case R.id.button_chat://sip聊天
+                VibratorUtils.Vibrate(MainActivity.this, 500);
                 intent.setClass(MainActivity.this, MainFragmentActivity.class);
                 intent.putExtra("current", 2);
                 startActivity(intent);
 
                 break;
-            case R.id.button_setup:
+            case R.id.button_setup://设置中心
+                VibratorUtils.Vibrate(MainActivity.this, 500);
                 intent.setClass(MainActivity.this, SettingCenterActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.button_alarm:
+            case R.id.button_alarm://应急报警
+                VibratorUtils.Vibrate(MainActivity.this, 500);
                 sendEmergency();
                 break;
         }
@@ -264,9 +407,10 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                //应急报警的界面
                 View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.alarm_item_view, null);
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-
+                //创建窗口
                 final AlertDialog alarmWindow = builder.setView(view).create();
                 alarmWindow.show();
                 tv = (TextView) view.findViewById(R.id.show_emergency_call_time);
@@ -276,12 +420,23 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                 nodePlayer.setInputUrl(duryRtsp);
                 nodePlayer.start();
                 if (SipService.isReady()) {
+                    Logutils.i("isCanCallPhone:"+isCanCallPhone);
                     if (isCanCallPhone)
-                        Linphone.callTo(duryName, false);
-                    else
+                        if (!TextUtils.isEmpty(duryNumber)) {
+                            Linphone.callTo(duryNumber, false);
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtils.showShort("未获取到值班室信息");
+                                }
+                            });
+                        }
+                    else {
                         ToastUtils.showShort("sip未注册成功");
+                    }
                 }
-
+                //切换摄像头
                 view.findViewById(R.id.custom_camera_layout).setOnClickListener(new View.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
                     @Override
@@ -312,6 +467,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                         alarmWindow.dismiss();
                         nodePlayer.stop();
                         nodePlayer.release();
+                        num = 0;
                         Linphone.hangUp();
                         if (mRtspServer != null)
                             mRtspServer.removeCallbackListener(mRtspCallbackListener);
@@ -539,7 +695,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
             @Override
             public void registrationFailed() {
                 LogUtils.i("TAG", "registrationFailed");
-                isCanCallPhone = false;
+                // isCanCallPhone = false;
             }
         }, new PhoneCallback() {
             @Override

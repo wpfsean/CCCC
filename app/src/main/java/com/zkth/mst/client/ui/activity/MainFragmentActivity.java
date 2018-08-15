@@ -2,6 +2,7 @@ package com.zkth.mst.client.ui.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -168,8 +169,10 @@ public class MainFragmentActivity extends BaseActivity {
     }
 
 
-    @OnClick({R.id.bottom_intercom_btn, R.id.bottom_chat_btn, R.id.bottom_video_btn})
+    @OnClick({R.id.bottom_applyforplay_btn,R.id.bottom_alarm_btn,R.id.bottom_intercom_btn, R.id.bottom_chat_btn, R.id.bottom_video_btn})
     public void radioClickEvent(View view) {
+
+        Intent intent = new Intent();
         if (view.getId() == R.id.bottom_intercom_btn) {
             mViewPager.setCurrentItem(0);
             bottom_intercom_btn.setChecked(true);
@@ -203,6 +206,14 @@ public class MainFragmentActivity extends BaseActivity {
                     current_fragment_name.setText(title[2]);
                 }
             });
+        }else if (view.getId() == R.id.bottom_applyforplay_btn){
+            intent.setClass(MainFragmentActivity.this,MainActivity.class);
+            startActivity(intent);
+            MainFragmentActivity.this.finish();
+        }else if (view.getId() == R.id.bottom_alarm_btn){
+            intent.setClass(MainFragmentActivity.this,MainActivity.class);
+            startActivity(intent);
+            MainFragmentActivity.this.finish();
         }
     }
 

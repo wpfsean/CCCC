@@ -132,7 +132,7 @@
             android:gravity="center" />
 
         <RadioButton
-            android:id="@+id/rb_recommd"
+            android:id="@+id/bottom_alarm_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -143,6 +143,7 @@
 
 
         <RadioButton
+            android:id="@+id/bottom_applyforplay_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

@@ -20,7 +20,12 @@ import com.zkth.mst.client.linphone.SipService;
 import com.zkth.mst.client.ui.activity.SingleCallActivity;
 import com.zkth.mst.client.ui.activity.SipInforActivity;
 import com.zkth.mst.client.utils.NetworkUtils;
+import com.zkth.mst.client.utils.SipHttpUtils;
 import com.zkth.mst.client.utils.ToastUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +57,19 @@ public class IntercomFragment extends BaseFragment implements SwipeRefreshLayout
     List<SipGroupBean> mList = new ArrayList<>();
 
     /**
-     * 模拟的值班室号码
+     * 模拟值班室名称
      */
-    String callNumber = "7002";
+    String duryName = "";//值班值号码信息
+
+    /**
+     * 模拟值班室的号码
+     */
+    String duryNumber = "";
+
+    /**
+     * 模拟值班室的视频 地址
+     */
+    String duryRtsp = "";
 
     @Override
     protected int getLayoutId() {
@@ -77,7 +92,48 @@ public class IntercomFragment extends BaseFragment implements SwipeRefreshLayout
         refreshLayout.setOnRefreshListener(this);
 
         getSipGroupResources();
+
+        requestDutyRoomInformation();
+
     }
+
+
+
+    /**
+     * 获取值班室信息
+     */
+    private void requestDutyRoomInformation() {
+
+        SipHttpUtils request = new SipHttpUtils("http://wesk.top/zhketech/dutyRoomData.php", new SipHttpUtils.GetHttpData() {
+            @Override
+            public void httpData(String result) {
+
+                String re = result;
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String code = jsonObject.getString("code");
+                    if (code.equals("1")) {
+                        JSONArray jsonArray = jsonObject.getJSONArray("data");
+                        JSONObject js = jsonArray.getJSONObject(0);
+                        duryName = js.getString("name");
+                        duryNumber = js.getString("number");
+                        duryRtsp = js.getString("server");
+                    } else {
+                        duryName = "";
+                        duryNumber = "";
+                        duryRtsp = "";
+                    }
+                } catch (JSONException e) {
+                    duryName = "";
+                    duryNumber = "";
+                    duryRtsp = "";
+                }
+            }
+        });
+        request.start();
+
+    }
+
 
     /**
      * 获取要展示 的数据
@@ -189,7 +245,7 @@ public class IntercomFragment extends BaseFragment implements SwipeRefreshLayout
      * 2、语音对话
      */
     public void call(int type) {
-        if (TextUtils.isEmpty(callNumber)) {
+        if (TextUtils.isEmpty(duryNumber)) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -209,7 +265,7 @@ public class IntercomFragment extends BaseFragment implements SwipeRefreshLayout
         }
         Intent intent = new Intent();
         intent.setClass(getActivity(), SingleCallActivity.class);
-        intent.putExtra("userName", callNumber);
+        intent.putExtra("userName", duryNumber);
         intent.putExtra("isCall", true);
         if (type == 0) {
             intent.putExtra("isVideo", true);
