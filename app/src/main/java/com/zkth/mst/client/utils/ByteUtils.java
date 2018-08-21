@@ -128,13 +128,6 @@ public class ByteUtils {
                 | (b[0] & 0xff) << 24;
     }
 
-//    public static int bytesToInt(byte b[], int offset) {
-//        return    b[offset+3] & 0xff
-//                | (b[offset+2] & 0xff) << 8
-//                | (b[offset+1] & 0xff) << 16
-//                | (b[offset] & 0xff) << 24;
-//    }
-
     public static byte[] uintToBytes(long n) {
         byte[] b = new byte[4];
         b[3] = (byte) (n & 0xff);

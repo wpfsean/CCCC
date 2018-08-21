@@ -14,11 +14,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.Vibrator;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -56,7 +54,7 @@ import com.zkth.mst.client.onvif.Onvif;
 import com.zkth.mst.client.rtsp.RtspServer;
 import com.zkth.mst.client.rtsp.media.VideoMediaCodec;
 import com.zkth.mst.client.rtsp.record.Constant;
-import com.zkth.mst.client.utils.CpuAndRam;
+import com.zkth.mst.client.utils.CpuAndRamUtils;
 import com.zkth.mst.client.utils.LogUtils;
 import com.zkth.mst.client.utils.NetworkUtils;
 import com.zkth.mst.client.utils.PhoneUtils;
@@ -160,17 +158,22 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
     /**
      * 模拟值班室名称
      */
-    String duryName = "";//值班值号码信息
+    String duryName = "7002话机值班室";//值班值号码信息
 
     /**
      * 模拟值班室的号码
      */
-    String duryNumber = "";
+    String duryNumber = "7002";
 
     /**
      * 模拟值班室的视频 地址
      */
-    String duryRtsp = "";
+    String duryRtsp = "rtsp://19.0.0.224:554/H264?ch=1&subtype=2&proto=Onvif";
+
+    /**
+     * 应急报警的弹窗
+     */
+    AlertDialog alarmWindow = null;
 
 
     //无网的提示
@@ -205,9 +208,37 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
     String ip = "";
 
     /**
+     * 当前页面是否正在显示
+     */
+    private boolean isFront = false;
+
+    /**
      * 显示时间的显示是否正在运行
      */
     boolean threadIsRun = true;
+
+    /**
+     * 电量信息
+     */
+    @BindView(R.id.icon_electritity_show)
+    ImageView batteryIcon;
+
+    /**
+     * 信号强度
+     */
+    @BindView(R.id.icon_network)
+    ImageView rssiIcon;
+
+    /**
+     * 连接状态
+     */
+    @BindView(R.id.icon_connection_show)
+    ImageView connetIConb;
+
+
+
+
+
 
 
     private Handler handler = new Handler() {
@@ -255,7 +286,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                 SimpleDateFormat timeD = new SimpleDateFormat("HH:mm:ss");
                 String currentTime = timeD.format(date).toString();
                 if (!TextUtils.isEmpty(currentTime)) {
-                    if (main_incon_time != null)
+                    if (isFront == true)
                         main_incon_time.setText(currentTime);
                 }
             }
@@ -288,8 +319,8 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
         mLoadingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
 
         //启动cpu和ram监测
-        CpuAndRam.getInstance().init(MainActivity.this, 5 * 1000);
-        CpuAndRam.getInstance().start();
+        CpuAndRamUtils.getInstance().init(MainActivity.this, 5 * 1000);
+        CpuAndRamUtils.getInstance().start();
 
         //接收短消息和报警报文
         receiveMessageAndAlarm();
@@ -298,9 +329,13 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
         //获取所有的视频 资源并解析rtsp
         getAllVideoResoucesInformation();
 
-        if (TextUtils.isEmpty(duryName) || TextUtils.isEmpty(duryNumber) || TextUtils.isEmpty(duryRtsp))
-            //获取值班室信息
-            requestDutyRoomInformation();
+        //  if (TextUtils.isEmpty(duryName) || TextUtils.isEmpty(duryNumber) || TextUtils.isEmpty(duryRtsp))
+        //获取值班室信息
+
+//        if (NetworkUtils.isConnected())
+//            requestDutyRoomInformation();
+//        else
+//            ToastUtils.showShort("无网络");
 
     }
 
@@ -309,7 +344,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
      */
     private void requestDutyRoomInformation() {
 
-        SipHttpUtils request = new SipHttpUtils("http://wesk.top/zhketech/dutyRoomData.php", new SipHttpUtils.GetHttpData() {
+        SipHttpUtils request = new SipHttpUtils("http://19.0.0.28/zkth/dutyRoomData.php", new SipHttpUtils.GetHttpData() {
             @Override
             public void httpData(String result) {
 
@@ -402,26 +437,30 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
         }
     }
 
+
+
     //应急报警
     private void sendEmergency() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //应急报警的界面
-                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.alarm_item_view, null);
-                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                //创建窗口
-                final AlertDialog alarmWindow = builder.setView(view).create();
-                alarmWindow.show();
-                tv = (TextView) view.findViewById(R.id.show_emergency_call_time);
-                NodePlayerView nodePlayerView = view.findViewById(R.id.show_emergency_layout);
-                nodePlayer = new NodePlayer(MainActivity.this);
-                nodePlayer.setPlayerView(nodePlayerView);
-                nodePlayer.setInputUrl(duryRtsp);
-                nodePlayer.start();
-                if (SipService.isReady()) {
-                    Logutils.i("isCanCallPhone:"+isCanCallPhone);
-                    if (isCanCallPhone)
+
+        if (isCanCallPhone) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //应急报警的界面
+                    View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.alarm_item_view, null);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    //创建窗口
+                    alarmWindow = builder.setView(view).create();
+                    alarmWindow.setCancelable(false);
+                    alarmWindow.show();
+                    tv = (TextView) view.findViewById(R.id.show_emergency_call_time);
+                    NodePlayerView nodePlayerView = view.findViewById(R.id.show_emergency_layout);
+                    nodePlayer = new NodePlayer(MainActivity.this);
+                    nodePlayer.setPlayerView(nodePlayerView);
+                    nodePlayer.setInputUrl(duryRtsp);
+                    nodePlayer.start();
+                    if (SipService.isReady()) {
+                        Logutils.i("isCanCallPhone:" + isCanCallPhone);
                         if (!TextUtils.isEmpty(duryNumber)) {
                             Linphone.callTo(duryNumber, false);
                         } else {
@@ -432,86 +471,87 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                                 }
                             });
                         }
-                    else {
-                        ToastUtils.showShort("sip未注册成功");
                     }
+                    //切换摄像头
+                    view.findViewById(R.id.custom_camera_layout).setOnClickListener(new View.OnClickListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+                        @Override
+                        public void onClick(View view) {
+                            if (cameraId == 0) {
+                                cameraId = 1;
+                            } else if (cameraId == 1) {
+                                cameraId = 0;
+                            }
+                            initCamera();
+                            try {
+                                play();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    view.findViewById(R.id.close_layout).setOnClickListener(new View.OnClickListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+                        @Override
+                        public void onClick(View view) {
+                            if (null != mCamera) {
+                                mCamera.setPreviewCallback(null);
+                                mCamera.stopPreview();
+                                mCamera.release();
+                                mCamera = null;
+                            }
+                            alarmWindow.dismiss();
+                            nodePlayer.stop();
+                            nodePlayer.release();
+                            num = 0;
+                            if (SipService.isReady())
+                                Linphone.hangUp();
+                            if (mRtspServer != null)
+                                mRtspServer.removeCallbackListener(mRtspCallbackListener);
+                            if (mRtspServiceConnection != null)
+                                unbindService(mRtspServiceConnection);
+                        }
+                    });
+
+                    SurfaceView surfaceView = (SurfaceView) view.findViewById(R.id.sur_view_layout);
+                    surfaceHolder = surfaceView.getHolder();
+                    surfaceHolder.setFixedSize(Constant.VIDEO_WIDTH, Constant.VIDEO_HEIGHT);
+                    surfaceHolder.setKeepScreenOn(true);
+                    surfaceHolder.addCallback(new SurfaceHolder.Callback() {
+                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+                        @Override
+                        public void surfaceCreated(SurfaceHolder surfaceHolder) {
+                            LogUtils.i("TAG", "surfaceCreated");
+
+                            initCamera();
+                            try {
+                                play();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+                            LogUtils.i("TAG", "surfaceChanged");
+                        }
+
+                        @Override
+                        public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+                            LogUtils.i("TAG", "surfaceDestroyed");
+                            if (null != mCamera) {
+                                mCamera.setPreviewCallback(null);
+                                mCamera.stopPreview();
+                                mCamera.release();
+                                mCamera = null;
+                            }
+                        }
+                    });
                 }
-                //切换摄像头
-                view.findViewById(R.id.custom_camera_layout).setOnClickListener(new View.OnClickListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-                    @Override
-                    public void onClick(View view) {
-                        if (cameraId == 0) {
-                            cameraId = 1;
-                        } else if (cameraId == 1) {
-                            cameraId = 0;
-                        }
-                        initCamera();
-                        try {
-                            play();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                view.findViewById(R.id.close_layout).setOnClickListener(new View.OnClickListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-                    @Override
-                    public void onClick(View view) {
-                        if (null != mCamera) {
-                            mCamera.setPreviewCallback(null);
-                            mCamera.stopPreview();
-                            mCamera.release();
-                            mCamera = null;
-                        }
-                        alarmWindow.dismiss();
-                        nodePlayer.stop();
-                        nodePlayer.release();
-                        num = 0;
-                        Linphone.hangUp();
-                        if (mRtspServer != null)
-                            mRtspServer.removeCallbackListener(mRtspCallbackListener);
-                        if (mRtspServiceConnection != null)
-                            unbindService(mRtspServiceConnection);
-                    }
-                });
-
-                SurfaceView surfaceView = (SurfaceView) view.findViewById(R.id.sur_view_layout);
-                surfaceHolder = surfaceView.getHolder();
-                surfaceHolder.setFixedSize(Constant.VIDEO_WIDTH, Constant.VIDEO_HEIGHT);
-                surfaceHolder.setKeepScreenOn(true);
-                surfaceHolder.addCallback(new SurfaceHolder.Callback() {
-                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-                    @Override
-                    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-                        LogUtils.i("TAG", "surfaceCreated");
-
-                        initCamera();
-                        try {
-                            play();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-                        LogUtils.i("TAG", "surfaceChanged");
-                    }
-
-                    @Override
-                    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-                        LogUtils.i("TAG", "surfaceDestroyed");
-                        if (null != mCamera) {
-                            mCamera.setPreviewCallback(null);
-                            mCamera.stopPreview();
-                            mCamera.release();
-                            mCamera = null;
-                        }
-                    }
-                });
-            }
-        });
+            });
+        } else {
+            ToastUtils.showShort("Sip未注册,请检查网络或重新登录");
+        }
 
     }
 
@@ -592,7 +632,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
         if (cameraId == 0)
             mCamera.setDisplayOrientation(90);
         else
-            mCamera.setDisplayOrientation(90);
+            mCamera.setDisplayOrientation(270);
         Camera.Parameters parameters = mCamera.getParameters();
         parameters.setFlashMode("off");
         parameters.setPreviewFormat(ImageFormat.NV21);
@@ -680,6 +720,9 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
     @Override
     protected void onResume() {
         super.onResume();
+        isFront = true;
+
+        //linphone状态回调
         Linphone.addCallback(new RegistrationCallback() {
             @Override
             public void registrationProgress() {
@@ -690,12 +733,14 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
             public void registrationOk() {
                 LogUtils.i("TAG", "registrationOk");
                 isCanCallPhone = true;
+                updateUi(connetIConb,R.mipmap.icon_connection_normal);
             }
 
             @Override
             public void registrationFailed() {
                 LogUtils.i("TAG", "registrationFailed");
-                // isCanCallPhone = false;
+                isCanCallPhone = false;
+                updateUi(connetIConb,R.mipmap.icon_connection_disable);
             }
         }, new PhoneCallback() {
             @Override
@@ -741,6 +786,33 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
 
             }
         });
+
+
+        int level = AppConfig.battery;
+        if (level >= 75 && level <= 100) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_a);
+        }
+        if (level >= 50 && level < 75) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_b);
+        }
+        if (level >= 25 && level < 50) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_c);
+        }
+        if (level >= 0 && level < 25) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_disable);
+        }
+
+        int rssi = AppConfig.wifi;
+        if (rssi > -50 && rssi < 0) {
+            updateUi(rssiIcon, R.mipmap.icon_network);
+        } else if (rssi > -70 && rssi <= -50) {
+            updateUi(rssiIcon, R.mipmap.icon_network_a);
+        } else if (rssi < -70) {
+            updateUi(rssiIcon, R.mipmap.icon_network_b);
+        } else if (rssi == -200) {
+            updateUi(rssiIcon, R.mipmap.icon_network_disable);
+        }
+
     }
 
     Thread mThread = null;
@@ -791,7 +863,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
         ReceiveServerMess receiveServerMess = new ReceiveServerMess(new ReceiveServerMess.GetSmsListern() {
             @Override
             public void getSmsContent(final String ms) {
-                runOnUiThread(new Runnable() {
+                MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         android.app.AlertDialog.Builder alert = new android.app.AlertDialog.Builder(MainActivity.this);
@@ -816,7 +888,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
             @Override
             public void getListern(final AlarmBen alarmBen, final String flage) {
 
-                runOnUiThread(new Runnable() {
+                MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MainActivity.this);
@@ -971,11 +1043,12 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
     }
 
 
+    //获取CMS的视频数据并解析rtsp
     private void getAllVideoResoucesInformation() {
         RequestVideoSourcesThread requestVideoSourcesThread = new RequestVideoSourcesThread(MainActivity.this, new RequestVideoSourcesThread.GetDataListener() {
             @Override
-            public void getResult(final List<VideoBen> mList) {
 
+            public void getResult(final List<VideoBen> mList) {
                 if (mList != null && mList.size() > 0) {
                     Logutils.i("AAAAAAAAA:" + mList.size());
                     //总数据量
@@ -1015,12 +1088,10 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                         }
                     }
                 } else {
-                    Logutils.i("AAAAAAAA:<0");
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MainActivity.this);
-                            builder.setTitle("No Video Infor").setMessage("未获取到VideoResources，请检查本机网络是否连接正常~~").create().show();
+                            showProgressFail("未获取到CMS数据",3*1000);
                         }
                     });
                     WriteLogToFile.info("No get Video Resources Data !!!");
@@ -1047,5 +1118,25 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                 }
             } while (threadIsRun);
         }
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isFront = false;
+    }
+
+
+    /**
+     * 更新UI
+     */
+    public void updateUi(final ImageView imageView, final int n) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                imageView.setBackgroundResource(n);
+            }
+        });
     }
 }

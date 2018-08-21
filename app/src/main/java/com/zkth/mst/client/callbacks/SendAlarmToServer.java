@@ -2,6 +2,7 @@ package com.zkth.mst.client.callbacks;
 
 
 import com.zkth.mst.client.base.AppConfig;
+import com.zkth.mst.client.base.DbConfig;
 import com.zkth.mst.client.db.Logutils;
 import com.zkth.mst.client.entity.VideoBen;
 import com.zkth.mst.client.utils.ByteUtils;
@@ -13,7 +14,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
 /**
- *
  * 发送报警报文 到服务器地址
  * Created by Root on 2018/4/24.
  */
@@ -32,8 +32,12 @@ public class SendAlarmToServer extends Thread {
     public void run() {
         super.run();
 
+        String alermIp = DbConfig.getInstance().getData(11);
+        String alermPort = DbConfig.getInstance().getData(6);
+
+
         byte[] requestBys = new byte[580];
-        String fl = "ATIF";//数据头
+        String fl = AppConfig.alarm_header_id;//数据头
         byte[] zd = fl.getBytes();
         System.arraycopy(zd, 0, requestBys, 0, 4);
         //sender ip
@@ -95,7 +99,6 @@ public class SendAlarmToServer extends Thread {
         System.arraycopy(username1, 0, username, 0, username1.length);
         System.arraycopy(username, 0, requestBys, 396, 32);
 
-
         //报文内的password
         byte[] password = new byte[32];
         byte[] password1 = videoBen.getPassword().getBytes();
@@ -107,7 +110,7 @@ public class SendAlarmToServer extends Thread {
         byte[] alertType = new byte[32];
         byte[] alertS = new byte[32];
         try {
-            alertS = "社会大哥打人了".getBytes(AppConfig.dataFormat);
+            alertS = AppConfig.alertType.getBytes(AppConfig.dataFormat);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -120,7 +123,7 @@ public class SendAlarmToServer extends Thread {
         Socket socket = null;
         OutputStream os = null;
         try {
-            socket = new Socket(AppConfig.alarm_server_ip, AppConfig.alarm_server_port);
+            socket = new Socket(alermIp,Integer.parseInt(alermPort));
 
             os = socket.getOutputStream();
             os.write(requestBys);
@@ -134,17 +137,17 @@ public class SendAlarmToServer extends Thread {
                 flag[i] = headers[i];
             }
             int status = ByteUtils.bytesToInt(flag, 0);
-            Logutils.i(status+"-------------报警信息-----------");
+            Logutils.i(status + "-------------报警信息-----------");
 
-            if (callback != null){
-                callback.getCallbackData("状态:"+status);
+            if (callback != null) {
+                callback.getCallbackData("状态:" + status);
             }
         } catch (IOException e) {
 
             String err = e.getMessage();
             Logutils.i(err);
-            if (callback != null){
-                callback.getCallbackData("状态error:"+err);
+            if (callback != null) {
+                callback.getCallbackData("状态error:" + err);
             }
 
             e.printStackTrace();
@@ -167,7 +170,7 @@ public class SendAlarmToServer extends Thread {
     }
 
 
-    public  interface  Callback{
+    public interface Callback {
         public void getCallbackData(String result);
     }
 }

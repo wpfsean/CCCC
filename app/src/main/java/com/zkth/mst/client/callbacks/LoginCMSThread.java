@@ -1,30 +1,39 @@
 package com.zkth.mst.client.callbacks;
 
+
 import com.zkth.mst.client.base.App;
 import com.zkth.mst.client.base.AppConfig;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 /**
  * Created by Root on 2018/8/5.
+ *
+ *用于验证cms服务登录 功能
+ *
+ * 判断返回的video的count是否大于0，
+ * >0成功
+ * =0 失败
  */
 
-public class LoginPassThread implements Runnable {
+public class LoginCMSThread implements Runnable {
 
     String name;
     String pass;
     String nativeIp;
+    String serverIp;
     LoginCallback callback;
 
 
-    public LoginPassThread(String name,String pass,String nativeIp, LoginCallback callback){
+    public LoginCMSThread(String name, String pass, String nativeIp, String serverIp, LoginCallback callback){
         this.name = name;
         this.pass = pass;
         this.nativeIp = nativeIp;
+        this.serverIp = serverIp;
         this.callback = callback;
+
     }
 
     @Override
@@ -33,7 +42,7 @@ public class LoginPassThread implements Runnable {
         InputStream is = null;//读取输入流
         try {
             byte[] bys = new byte[140];
-            String fl = "ZKTH";
+            String fl = AppConfig.video_header_id;
             byte[] zk = fl.getBytes();
             for (int i = 0; i < zk.length; i++) {
                 bys[i] = zk[i];
@@ -45,12 +54,12 @@ public class LoginPassThread implements Runnable {
             bys[7] = 0;
             //用户名列表
             String parameters = name+"/"+pass+"/"+nativeIp+"/0";
-            byte[] na = parameters.getBytes("gb2312");
+            byte[] na = parameters.getBytes(AppConfig.dataFormat);
             for (int i = 0; i < na.length; i++) {
                 bys[i + 8] = na[i];
             }
             //socket请求
-            socket = new Socket("19.0.0.28", 2010);
+            socket = new Socket(serverIp, 2010);
             socket.setSoTimeout(6*1000);
             OutputStream os = socket.getOutputStream();
             os.write(bys);

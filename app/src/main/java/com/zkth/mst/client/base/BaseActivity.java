@@ -1,17 +1,11 @@
 package com.zkth.mst.client.base;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -21,15 +15,11 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.zkth.mst.client.R;
-import com.zkth.mst.client.receiver.MyNetReceiver;
+import com.zkth.mst.client.receiver.NetChangedReceiver;
 import com.zkth.mst.client.ui.widget.NetworkStateView;
 import com.zkth.mst.client.utils.ActivityUtils;
-import com.zkth.mst.client.utils.LogUtils;
 import com.zkth.mst.client.utils.PermissionListener;
 import com.zkth.mst.client.utils.ProgressDialogUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -39,10 +29,10 @@ import butterknife.Unbinder;
  * Activity基类
  */
 
-public abstract class BaseActivity extends AppCompatActivity implements NetworkStateView.OnRefreshListener, MyNetReceiver.NetChangeEvent {
-    public static MyNetReceiver.NetChangeEvent event;
+public abstract class BaseActivity extends AppCompatActivity implements NetworkStateView.OnRefreshListener, NetChangedReceiver.NetChangeEvent {
+    public static NetChangedReceiver.NetChangeEvent event;
     private Unbinder unbinder;
-    private MyNetReceiver mNetReceiver;
+    private NetChangedReceiver mNetReceiver;
     private ProgressDialogUtils progressDialog;
     private NetworkStateView networkStateView;
     private static PermissionListener mPermissionListener;
@@ -51,10 +41,12 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkS
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) actionBar.hide();
+        hideStatusBar();
         setContentView(getLayoutId());
         unbinder = ButterKnife.bind(this);
         initReceiver();
@@ -77,9 +69,9 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkS
         //设置填充activity_base布局
         super.setContentView(view);
 
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
-            view.setFitsSystemWindows(true);
-        }
+//        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+//            view.setFitsSystemWindows(true);
+//        }
 
         //加载子类Activity的布局
         initDefaultView(layoutResID);
@@ -236,10 +228,26 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkS
 
     private void initReceiver() {
         // 动态注册广播
-        mNetReceiver = new MyNetReceiver();
+        mNetReceiver = new NetChangedReceiver();
         // 创建意图过滤器
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(mNetReceiver, intentFilter);
+    }
+
+
+
+    //显示状态栏
+    protected void hideStatusBar() {
+        if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api
+            View v = this.getWindow().getDecorView();
+            v.setSystemUiVisibility(View.GONE);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            //for new api versions.
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.INVISIBLE;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
     }
 }

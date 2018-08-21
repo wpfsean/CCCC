@@ -1,7 +1,5 @@
 package com.zkth.mst.client.ui.activity;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
@@ -14,13 +12,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.zkth.mst.client.R;
-import com.zkth.mst.client.adapter.MyPagerAdapter;
+import com.zkth.mst.client.adapter.SlidingPagerAdapter;
 import com.zkth.mst.client.base.BaseActivity;
-import com.zkth.mst.client.callbacks.ReceiveServerMess;
-import com.zkth.mst.client.callbacks.ReceiverServerAlarm;
-import com.zkth.mst.client.db.DatabaseHelper;
 import com.zkth.mst.client.db.Logutils;
-import com.zkth.mst.client.entity.AlarmBen;
 import com.zkth.mst.client.ui.fragment.ChatListFragment;
 import com.zkth.mst.client.ui.fragment.IntercomFragment;
 import com.zkth.mst.client.ui.fragment.VoideoFragment;
@@ -89,7 +83,7 @@ public class MainFragmentActivity extends BaseActivity {
         list.add(new IntercomFragment());
         list.add(new VoideoFragment());
         list.add(new ChatListFragment());
-        final MyPagerAdapter adapter = new MyPagerAdapter(getSupportFragmentManager(), list);
+        final SlidingPagerAdapter adapter = new SlidingPagerAdapter(getSupportFragmentManager(), list);
         mViewPager.setAdapter(adapter);
 
         currentPager = getIntent().getIntExtra("current", 0);

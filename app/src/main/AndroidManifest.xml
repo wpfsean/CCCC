@@ -44,10 +44,8 @@
         <service android:name=".rtsp.RtspServer" />
         <!-- LinPhone语音通话 -->
         <service android:name=".linphone.SipService" />
-
         <!-- 信号电量 -->
         <service android:name=".callbacks.BatteryAndWifiService" />
-
         <!-- 发送心跳 -->
         <service android:name=".callbacks.SendHbService" />
         <!-- 百度地图 -->
@@ -78,6 +76,7 @@
         <activity
             android:name=".ui.activity.MainActivity"
             android:launchMode="singleInstance"
+            android:theme="@style/AppTheme"
             android:screenOrientation="portrait" />
         <activity android:name=".ui.activity.MainFragmentActivity" />
         <activity android:name=".ui.activity.SingleCallActivity" />

@@ -16,12 +16,12 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Usage:
- * CpuAndRam.getInstance().init(getApplicationContext(), 100L);
- * CpuAndRam.getInstance().start();
+ * CpuAndRamUtils.getInstance().init(getApplicationContext(), 100L);
+ * CpuAndRamUtils.getInstance().start();
  */
-public class CpuAndRam implements Runnable {
+public class CpuAndRamUtils implements Runnable {
 
-    private volatile static CpuAndRam instance = null;
+    private volatile static CpuAndRamUtils instance = null;
     private ScheduledExecutorService scheduler;
     private ActivityManager activityManager;
     private long freq;
@@ -30,15 +30,15 @@ public class CpuAndRam implements Runnable {
     private RandomAccessFile procStatFile;
     private RandomAccessFile appStatFile;
 
-    private CpuAndRam() {
+    private CpuAndRamUtils() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
-    public static CpuAndRam getInstance() {
+    public static CpuAndRamUtils getInstance() {
         if (instance == null) {
-            synchronized (CpuAndRam.class) {
+            synchronized (CpuAndRamUtils.class) {
                 if (instance == null) {
-                    instance = new CpuAndRam();
+                    instance = new CpuAndRamUtils();
                 }
             }
         }
@@ -59,7 +59,7 @@ public class CpuAndRam implements Runnable {
     public void run() {
         double cpu = sampleCPU();
         double mem = sampleMemory();
-        Log.i("CpuAndRam", "CPU: " + cpu + "%" + "    Memory: " + mem + "MB");
+        Log.i("CpuAndRamUtils", "CPU: " + cpu + "%" + "    Memory: " + mem + "MB");
 
         AppConfig.cpu = cpu;
         AppConfig.ram = mem;

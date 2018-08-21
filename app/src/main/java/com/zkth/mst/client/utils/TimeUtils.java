@@ -1,6 +1,8 @@
 package com.zkth.mst.client.utils;
 
 
+import com.zkth.mst.client.db.Logutils;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -63,5 +65,18 @@ public class TimeUtils {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date(timeMillis);
         return simpleDateFormat.format(date);
+    }
+
+    public static String getNetDate() {
+
+        NetWorkTimeCallback netDateCallback = new NetWorkTimeCallback(new NetWorkTimeCallback.TimeCallback() {
+            @Override
+            public void getTime(String str) {
+
+                Logutils.i("str:"+str);
+            }
+        });
+        netDateCallback.start();
+        return "";
     }
 }

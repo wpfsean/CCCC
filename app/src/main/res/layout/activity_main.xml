@@ -19,21 +19,48 @@
 
             <RelativeLayout
                 android:layout_width="fill_parent"
-                android:layout_height="21.3dp">
+                android:layout_height="21.3dp"
+                android:background="#ccc">
 
                 <TextView
                     android:id="@+id/main_incon_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/main_icon_date"
                     android:layout_centerHorizontal="true"
                     android:text=""
                     android:textColor="@color/black" />
 
+                <ImageView
+                    android:id="@+id/icon_network"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="6dp" />
+
+                <ImageView
+                    android:id="@+id/icon_electritity_show"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="6dp"
+                    android:layout_toLeftOf="@+id/icon_network" />
+
+                <ImageView
+                    android:id="@+id/icon_connection_show"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="6dp"
+                    android:layout_toLeftOf="@+id/icon_electritity_show" />
+
                 <TextView
-                    android:id="@+id/main_icon_date"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
+                    android:id="@+id/battery_level_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:text="aaa"
                     android:visibility="gone" />
 
             </RelativeLayout>
@@ -208,14 +235,15 @@
                                     android:layout_centerInParent="true"
                                     android:background="@drawable/applyforplay_btn_select_port" />
                             </FrameLayout>
+
                             <ImageView
                                 android:id="@+id/main_loading_layout"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:visibility="gone"
                                 android:layout_centerHorizontal="true"
                                 android:layout_marginTop="25dp"
-                                android:src="@drawable/ic_loading" />
+                                android:src="@drawable/ic_loading"
+                                android:visibility="gone" />
 
                             <TextView
                                 android:id="@+id/main_loading_textview_layout"
@@ -224,8 +252,8 @@
                                 android:layout_below="@+id/main_loading_layout"
                                 android:layout_centerHorizontal="true"
                                 android:text="正在计算开锁码"
-                                android:visibility="gone"
-                                android:textColor="@color/black" />
+                                android:textColor="@color/black"
+                                android:visibility="gone" />
                         </RelativeLayout>
 
                     </LinearLayout>
@@ -237,11 +265,10 @@
         </LinearLayout>
 
 
-
         <RelativeLayout
             android:id="@+id/no_network_layout"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
             android:background="#cccccc"
             android:visibility="gone">
 
@@ -250,7 +277,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:gravity="center"
-                android:text="亲、没网了吧" />
+                android:text="网络异常,请检查网络是否连接正确"
+                android:textColor="#ff0000" />
         </RelativeLayout>
 
 

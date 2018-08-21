@@ -1,7 +1,9 @@
 package com.zkth.mst.client.callbacks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
+import android.widget.TextView;
 
 import com.zkth.mst.client.base.App;
 import com.zkth.mst.client.base.AppConfig;
@@ -29,7 +31,7 @@ import java.util.List;
 public class RequestSipSourcesThread implements Runnable {
 
     SipListern listern;
-    List<SipBean> sipSources = new ArrayList<SipBean>();
+    List<SipBean> sipSources = new ArrayList<>();
     Context mContext;
     String type;
     // 构造对象
@@ -71,7 +73,11 @@ public class RequestSipSourcesThread implements Runnable {
             for (int i = 0; i < na.length; i++) {
                 bys[i + 8] = na[i];
             }
-                socket = new Socket(dbServerIp, Integer.parseInt(dbPort));
+            int a =0;
+            if (!TextUtils.isEmpty(dbPort)){
+                a= Integer.parseInt(dbPort);
+            }
+                socket = new Socket(dbServerIp, a);
             OutputStream os = socket.getOutputStream();
             os.write(bys);
             os.flush();
@@ -276,6 +282,4 @@ public class RequestSipSourcesThread implements Runnable {
     public interface SipListern {
         void getDataListern(List<SipBean> mList);
     }
-
-
 }

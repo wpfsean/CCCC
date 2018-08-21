@@ -4,7 +4,9 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 
 import com.zkth.mst.client.R;
@@ -47,7 +49,7 @@ public class ButtomSlidingAdapter extends RecyclerView.Adapter<ButtomSlidingAdap
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = View.inflate(parent.getContext(), R.layout.function3_button_activity, null);
+        View view = View.inflate(parent.getContext(), R.layout.bottom_item_layout, null);
         ViewHolder holder = new ViewHolder(view);
         return holder;
     }
@@ -55,16 +57,12 @@ public class ButtomSlidingAdapter extends RecyclerView.Adapter<ButtomSlidingAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
-        holder.imageButton.setBackgroundResource(images[position]);
-        if (type == 0) {
-            holder.imageButton.setChecked(true);
-        } else {
-            holder.imageButton.setChecked(false);
-        }
-
+        if (position ==0 )
+            holder.imageButton.setBackgroundResource(R.mipmap.port_network_intercom_btn_selected);
+        else
+            holder.imageButton.setBackgroundResource(images[position]);
 
         if (onItemClickListener != null) {
-
             holder.imageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -80,11 +78,12 @@ public class ButtomSlidingAdapter extends RecyclerView.Adapter<ButtomSlidingAdap
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        RadioButton imageButton;
+        ImageButton imageButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
             imageButton = itemView.findViewById(R.id.bottom_item_bg_btn);
+
         }
     }
 

@@ -23,7 +23,6 @@ public class SipHttpUtils implements Runnable {
 			try {
 
 				HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-				con.setConnectTimeout(3000);
 				con.setRequestMethod("GET");
 				con.connect();
 				if (con.getResponseCode() == 200) {

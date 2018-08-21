@@ -12,7 +12,7 @@ import com.zkth.mst.client.utils.NetworkUtils;
  * 广播接收器 监听网络变化
  */
 
-public class MyNetReceiver extends BroadcastReceiver {
+public class NetChangedReceiver extends BroadcastReceiver {
 
     private NetChangeEvent event ;
 

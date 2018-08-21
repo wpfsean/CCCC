@@ -5,6 +5,8 @@ import android.database.Cursor;
 import com.zkth.mst.client.db.DatabaseHelper;
 import com.zkth.mst.client.utils.TimeDo;
 
+import java.util.concurrent.Executors;
+
 /**
  * Created by Root on 2018/8/8.
  *
@@ -47,57 +49,62 @@ public class DbConfig {
     }
 
     public String getData(int type) {
-        Cursor cursor = databaseHelper.getUserCursor();
-        String data = "";
-        if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+        try {
+            Cursor cursor = databaseHelper.getUserCursor();
+            String data = "";
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
 
-                switch (type) {
-                    case 0: //当前用户名
-                        data = cursor.getString(cursor.getColumnIndex("name"));
-                        break;
-                    case 1://当前密码
-                        data = cursor.getString(cursor.getColumnIndex("pass"));
-                        break;
-                    case 2://用户登录时间
-                        data = cursor.getString(cursor.getColumnIndex("login_time"));
-                        break;
-                    case 3://本机ip
-                        data = cursor.getString(cursor.getColumnIndex("nativeip"));
-                        break;
-                    case 4://心跳端口
-                        data = cursor.getString(cursor.getColumnIndex("header_port"));
-                        break;
-                    case 5://登录端口
-                        data = cursor.getString(cursor.getColumnIndex("login_port"));
-                        break;
-                    case 6://报警端口
-                        data = cursor.getString(cursor.getColumnIndex("alarm_port"));
-                        break;
-                    case 7://当前sip名称
-                        data = cursor.getString(cursor.getColumnIndex("sip_name"));
-                        break;
-                    case 8://当前sip号码
-                        data = cursor.getString(cursor.getColumnIndex("sip_num"));
-                        break;
-                    case 9://sip服务器地址
-                        data = cursor.getString(cursor.getColumnIndex("sip_server"));
-                        break;
-                    case 10://sip密码
-                        data = cursor.getString(cursor.getColumnIndex("sip_pwd"));
-                        break;
-                    case 11://报警ip
-                        data = cursor.getString(cursor.getColumnIndex("alarm_ip"));
-                        break;
-                    case 12://服务器ip
-                        data = cursor.getString(cursor.getColumnIndex("serverip"));
-                        break;
+                    switch (type) {
+                        case 0: //当前用户名
+                            data = cursor.getString(cursor.getColumnIndex("name"));
+                            break;
+                        case 1://当前密码
+                            data = cursor.getString(cursor.getColumnIndex("pass"));
+                            break;
+                        case 2://用户登录时间
+                            data = cursor.getString(cursor.getColumnIndex("login_time"));
+                            break;
+                        case 3://本机ip
+                            data = cursor.getString(cursor.getColumnIndex("nativeip"));
+                            break;
+                        case 4://心跳端口
+                            data = cursor.getString(cursor.getColumnIndex("header_port"));
+                            break;
+                        case 5://登录端口
+                            data = cursor.getString(cursor.getColumnIndex("login_port"));
+                            break;
+                        case 6://报警端口
+                            data = cursor.getString(cursor.getColumnIndex("alarm_port"));
+                            break;
+                        case 7://当前sip名称
+                            data = cursor.getString(cursor.getColumnIndex("sip_name"));
+                            break;
+                        case 8://当前sip号码
+                            data = cursor.getString(cursor.getColumnIndex("sip_num"));
+                            break;
+                        case 9://sip服务器地址
+                            data = cursor.getString(cursor.getColumnIndex("sip_server"));
+                            break;
+                        case 10://sip密码
+                            data = cursor.getString(cursor.getColumnIndex("sip_pwd"));
+                            break;
+                        case 11://报警ip
+                            data = cursor.getString(cursor.getColumnIndex("alarm_ip"));
+                            break;
+                        case 12://服务器ip
+                            data = cursor.getString(cursor.getColumnIndex("serverip"));
+                            break;
+                    }
+                } else {
+                    return "";
                 }
-            } else {
-                return "";
             }
+            return  data;
+        }catch (Exception e){
+
         }
-        return data;
+        return "";
     }
 }

@@ -4,19 +4,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
     <!--最顶部的头文件-->
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="21.3dp">
-
-
-        <TextView
-            android:id="@+id/mainfragment_time_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text=""
-            android:textColor="@color/black" />
-    </RelativeLayout>
 
     <!--标题 tilte-->
     <RelativeLayout

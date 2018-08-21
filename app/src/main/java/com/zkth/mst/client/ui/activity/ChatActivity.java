@@ -95,7 +95,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
             String sipserver = DbConfig.getInstance().getData(9);
             if (!TextUtils.isEmpty(sipserver)) {
                 try {
-                    linphoneAddress = LinphoneCoreFactory.instance().createLinphoneAddress("sip:" + who + "@" + "7007");
+                    linphoneAddress = LinphoneCoreFactory.instance().createLinphoneAddress("sip:" + who + "@" + sipserver);
                 } catch (LinphoneCoreException e) {
                     e.printStackTrace();
                 }

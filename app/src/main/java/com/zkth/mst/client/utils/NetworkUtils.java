@@ -7,7 +7,6 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
 
-
 import com.zkth.mst.client.base.App;
 
 import java.lang.reflect.Method;
@@ -15,6 +14,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by ZHT on 2017/4/19.
@@ -37,6 +38,7 @@ public class NetworkUtils {
 	private static final int NETWORK_TYPE_GSM = 16;
 	private static final int NETWORK_TYPE_TD_SCDMA = 17;
 	private static final int NETWORK_TYPE_IWLAN = 18;
+
 
 	/**
 	 * 打开网络设置界面
@@ -354,4 +356,16 @@ public class NetworkUtils {
 		return null;
 	}
 
+
+	/**
+	 * 判断Ip是否合法
+	 * @param ipAddress
+	 * @return
+	 */
+	public static boolean isboolIp(String ipAddress) {
+		String ip = "([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}";
+		Pattern pattern = Pattern.compile(ip);
+		Matcher matcher = pattern.matcher(ipAddress);
+		return matcher.matches();
+	}
 }

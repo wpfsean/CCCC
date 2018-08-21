@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.zkth.mst.client.R;
 import com.zkth.mst.client.adapter.ButtomSlidingAdapter;
 import com.zkth.mst.client.base.BaseActivity;
+import com.zkth.mst.client.base.DbConfig;
 import com.zkth.mst.client.callbacks.RequestSipSourcesThread;
 import com.zkth.mst.client.entity.SipBean;
 import com.zkth.mst.client.entity.SipClient;
@@ -354,7 +355,7 @@ public class SipInforActivity extends BaseActivity {
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            String native_name = "7007";
+            String native_name = DbConfig.getInstance().getData(8);
 
             if (adapterList != null && adapterList.size() > 0) {
                 if (!TextUtils.isEmpty(native_name)) {

@@ -140,18 +140,18 @@ public class IntercomFragment extends BaseFragment implements SwipeRefreshLayout
      */
     private void getSipGroupResources() {
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                showProgressDialogWithText("正在加载数据...");
-            }
-        });
         //先清空集合内的数据
         if (mList != null && mList.size() > 0) {
             mList.clear();
         }
         //判断网络状态
         if (NetworkUtils.isConnected()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showProgressDialogWithText("正在加载数据...");
+                }
+            });
             //数据请求
             SipGroupResourcesCallback sipGroupResourcesCallback = new SipGroupResourcesCallback(new SipGroupResourcesCallback.SipGroupDataCallback() {
                 @Override
@@ -202,7 +202,7 @@ public class IntercomFragment extends BaseFragment implements SwipeRefreshLayout
     @Override
     public void onNetworkViewRefresh() {
         //重新加载数据
-        showProgressDialogWithText("重新加载数据...");
+       // showProgressDialogWithText("重新加载数据...");
         //重新获取 sip数据
         getSipGroupResources();
     }

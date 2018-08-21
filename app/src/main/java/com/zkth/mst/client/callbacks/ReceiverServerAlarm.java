@@ -2,6 +2,7 @@ package com.zkth.mst.client.callbacks;
 
 import android.text.TextUtils;
 
+import com.zkth.mst.client.base.AppConfig;
 import com.zkth.mst.client.base.DbConfig;
 import com.zkth.mst.client.db.Logutils;
 import com.zkth.mst.client.entity.AlarmBen;
@@ -16,7 +17,7 @@ import java.net.Socket;
 
 /**
  * 回调接收服务器的报警报文(须去掉空的byte)
- *
+ * <p>
  * Created by Root on 2018/4/20.
  */
 
@@ -31,9 +32,9 @@ public class ReceiverServerAlarm extends Thread {
     @Override
     public void run() {
         super.run();
-        int port =2000;
+        int port = 2000;
         String dbPort = DbConfig.getInstance().getData(6);
-        if (!TextUtils.isEmpty(dbPort)){
+        if (!TextUtils.isEmpty(dbPort)) {
             port = Integer.parseInt(dbPort);
         }
 
@@ -52,14 +53,14 @@ public class ReceiverServerAlarm extends Thread {
                     for (int i = 0; i < 4; i++) {
                         flage[i] = header[i];
                     }
-                    String falge1 = new String(flage, "gb2312");
+                    String falge1 = new String(flage, AppConfig.dataFormat);
                     //sender 32
                     byte[] sender = new byte[32];
                     for (int i = 0; i < 32; i++) {
                         sender[i] = header[i + 4];
                     }
                     int sender_position = ByteUtils.getPosiotion(sender);
-                    String sender1 = new String(sender,0,sender_position, "gb2312");
+                    String sender1 = new String(sender, 0, sender_position, AppConfig.dataFormat);
 
                     //videoource
 
@@ -68,7 +69,7 @@ public class ReceiverServerAlarm extends Thread {
                     for (int i = 0; i < 4; i++) {
                         videoFlage[i] = header[i + 36];
                     }
-                    String videoFlage1 = new String(videoFlage, "gb2312");
+                    String videoFlage1 = new String(videoFlage, AppConfig.dataFormat);
 
                     //videoId 48
                     byte[] videoId = new byte[48];
@@ -76,7 +77,7 @@ public class ReceiverServerAlarm extends Thread {
                         videoId[i] = header[i + 40];
                     }
                     int videoId_position = ByteUtils.getPosiotion(videoId);
-                    String videoId1 = new String(videoId,0,videoId_position, "gb2312");
+                    String videoId1 = new String(videoId, 0, videoId_position, AppConfig.dataFormat);
 
                     //name 128
                     byte[] videoName = new byte[128];
@@ -84,7 +85,7 @@ public class ReceiverServerAlarm extends Thread {
                         videoName[i] = header[i + 88];
                     }
                     int videoName_position = ByteUtils.getPosiotion(videoName);
-                    String videoName1 = new String(videoName,0,videoName_position, "gb2312");
+                    String videoName1 = new String(videoName, 0, videoName_position, AppConfig.dataFormat);
 
                     //DeviceType  16
                     byte[] videoDeviceType = new byte[16];
@@ -92,7 +93,7 @@ public class ReceiverServerAlarm extends Thread {
                         videoDeviceType[i] = header[i + 216];
                     }
                     int videoDeviceType_position = ByteUtils.getPosiotion(videoDeviceType);
-                    String deviceType1 = new String(videoDeviceType,0,videoDeviceType_position, "gb2312");
+                    String deviceType1 = new String(videoDeviceType, 0, videoDeviceType_position, AppConfig.dataFormat);
 
                     //videoIPAddress  32
                     byte[] videoIPAddress = new byte[32];
@@ -100,7 +101,7 @@ public class ReceiverServerAlarm extends Thread {
                         videoIPAddress[i] = header[i + 232];
                     }
                     int videoIPAddress_position = ByteUtils.getPosiotion(videoIPAddress);
-                    String videoIp1 = new String(videoIPAddress,0,videoIPAddress_position, "gb2312");
+                    String videoIp1 = new String(videoIPAddress, 0, videoIPAddress_position, AppConfig.dataFormat);
 
                     //port_icon 4
                     int sentryId = ByteUtils.bytesToInt(header, 264);
@@ -112,7 +113,7 @@ public class ReceiverServerAlarm extends Thread {
                         videoChannel[i] = header[i + 268];
                     }
                     int videoChannel_position = ByteUtils.getPosiotion(videoChannel);
-                    String channel1 = new String(videoChannel,0,videoChannel_position, "gb2312");
+                    String channel1 = new String(videoChannel, 0, videoChannel_position, AppConfig.dataFormat);
 
                     //Username  32
                     byte[] videoUsername = new byte[32];
@@ -120,7 +121,7 @@ public class ReceiverServerAlarm extends Thread {
                         videoUsername[i] = header[i + 396];
                     }
                     int videoUsername_position = ByteUtils.getPosiotion(videoUsername);
-                    String username1 = new String(videoUsername,0,videoUsername_position, "gb2312");
+                    String username1 = new String(videoUsername, 0, videoUsername_position, AppConfig.dataFormat);
 
                     //Password  32
                     byte[] videoPassword = new byte[32];
@@ -128,7 +129,7 @@ public class ReceiverServerAlarm extends Thread {
                         videoPassword[i] = header[i + 428];
                     }
                     int videoPassword_position = ByteUtils.getPosiotion(videoPassword);
-                    String videoPass1 = new String(videoPassword,0,videoPassword_position, "gb2312");
+                    String videoPass1 = new String(videoPassword, 0, videoPassword_position, AppConfig.dataFormat);
 
                     //alarmType 32
                     byte[] videoAlarmType = new byte[32];
@@ -136,18 +137,18 @@ public class ReceiverServerAlarm extends Thread {
                         videoAlarmType[i] = header[i + 460];
                     }
                     int videoAlarmType_position = ByteUtils.getPosiotion(videoAlarmType);
-                    String alarmType1 = new String(videoAlarmType,0,videoAlarmType_position, "gb2312");
+                    String alarmType1 = new String(videoAlarmType, 0, videoAlarmType_position, AppConfig.dataFormat);
 
-                    VideoBen videoBen = new VideoBen(videoFlage1,videoId1,videoName1,deviceType1,videoIp1,sentryId+"",channel1,username1,videoPass1,"",false,"","");
-                    AlarmBen alarmBen = new AlarmBen(sender1,videoBen,alarmType1,"");
+                    VideoBen videoBen = new VideoBen(videoFlage1, videoId1, videoName1, deviceType1, videoIp1, sentryId + "", channel1, username1, videoPass1, "", false, "", "");
+                    AlarmBen alarmBen = new AlarmBen(sender1, videoBen, alarmType1, "");
 
-                    if(listern != null){
-                        listern.getListern(alarmBen,"success");
+                    if (listern != null) {
+                        listern.getListern(alarmBen, "success");
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    listern.getListern(null,"fail");
+                    listern.getListern(null, "fail");
                 } finally {
                     in.close();
                     if (socket != null) {
@@ -160,7 +161,7 @@ public class ReceiverServerAlarm extends Thread {
                 }
             }
         } catch (Exception e) {
-            Logutils.e("接收报警socket异常:"+e.getMessage());
+            Logutils.e("接收报警socket异常:" + e.getMessage());
         }
     }
 

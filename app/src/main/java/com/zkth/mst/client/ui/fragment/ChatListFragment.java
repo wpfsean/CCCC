@@ -3,25 +3,15 @@ package com.zkth.mst.client.ui.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zkth.mst.client.R;
 import com.zkth.mst.client.adapter.ChatListAdapter;
-import com.zkth.mst.client.base.AppConfig;
-import com.zkth.mst.client.base.BaseActivity;
 import com.zkth.mst.client.base.BaseFragment;
 import com.zkth.mst.client.entity.SipClient;
 import com.zkth.mst.client.linphone.MessageCallback;
@@ -68,7 +58,7 @@ public class ChatListFragment extends BaseFragment implements View.OnClickListen
 
     @Override
     protected int getLayoutId() {
-        return R.layout.view2;
+        return R.layout.chat_fragment;
     }
 
     @Override

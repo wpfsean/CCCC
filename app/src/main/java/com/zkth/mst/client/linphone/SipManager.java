@@ -214,7 +214,7 @@ public class SipManager implements LinphoneCoreListener {
             if (versionName == null) {
                 versionName = String.valueOf(mServiceContext.getPackageManager().getPackageInfo(mServiceContext.getPackageName(), 0).versionCode);
             }
-            mLc.setUserAgent("zkth", versionName);
+            mLc.setUserAgent("zkth-p", versionName);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

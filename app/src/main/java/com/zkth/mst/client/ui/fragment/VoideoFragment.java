@@ -22,7 +22,7 @@ import com.zkth.mst.client.callbacks.SendAlarmToServer;
 import com.zkth.mst.client.db.Logutils;
 import com.zkth.mst.client.entity.VideoBen;
 import com.zkth.mst.client.onvif.Device;
-import com.zkth.mst.client.utils.ControlPtz;
+import com.zkth.mst.client.utils.ControlPtzUtils;
 import com.zkth.mst.client.utils.GsonUtils;
 import com.zkth.mst.client.utils.PageModel;
 import com.zkth.mst.client.utils.SharedPreferencesUtils;
@@ -698,11 +698,11 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             case R.id.video_ptz_up:
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (!TextUtils.isEmpty(mRtsp) && !TextUtils.isEmpty(mToken)) {
-                        ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "top", 0.00, 0.03);
+                        ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "top", 0.00, 0.03);
                         controlPtz.start();
                     }
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "stop", 0.00, 0.00);
+                    ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "stop", 0.00, 0.00);
                     controlPtz.start();
                 }
 
@@ -711,11 +711,11 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             case R.id.video_ptz_down:
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (!TextUtils.isEmpty(mRtsp) && !TextUtils.isEmpty(mToken)) {
-                        ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "below", 0.00, -0.03);
+                        ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "below", 0.00, -0.03);
                         controlPtz.start();
                     }
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "stop", 0.00, 0.00);
+                    ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "stop", 0.00, 0.00);
                     controlPtz.start();
                 }
                 break;
@@ -723,11 +723,11 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             case R.id.video_ptz_left:
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (!TextUtils.isEmpty(mRtsp) && !TextUtils.isEmpty(mToken)) {
-                        ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "left", 0.03, 0.00);
+                        ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "left", 0.03, 0.00);
                         controlPtz.start();
                     }
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "stop", 0.00, 0.00);
+                    ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "stop", 0.00, 0.00);
                     controlPtz.start();
                 }
                 break;
@@ -735,11 +735,11 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             case R.id.video_ptz_right:
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (!TextUtils.isEmpty(mRtsp) && !TextUtils.isEmpty(mToken)) {
-                        ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "right", -0.03, 0.00);
+                        ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "right", -0.03, 0.00);
                         controlPtz.start();
                     }
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "stop", 0.00, 0.00);
+                    ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "stop", 0.00, 0.00);
                     controlPtz.start();
                 }
                 break;
@@ -747,11 +747,11 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             case R.id.video_zoomout_button:
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (!TextUtils.isEmpty(mRtsp) && !TextUtils.isEmpty(mToken)) {
-                        ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "zoom_b", -0.3, -0.03);
+                        ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "zoom_b", -0.3, -0.03);
                         controlPtz.start();
                     }
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "stop", 0.00, 0.00);
+                    ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "stop", 0.00, 0.00);
                     controlPtz.start();
                 }
                 break;
@@ -759,11 +759,11 @@ public class VoideoFragment extends BaseFragment implements NodePlayerDelegate, 
             case R.id.video_zoombig_button:
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (!TextUtils.isEmpty(mRtsp) && !TextUtils.isEmpty(mToken)) {
-                        ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "zoom_s", 0.3, 0.03);
+                        ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "zoom_s", 0.3, 0.03);
                         controlPtz.start();
                     }
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    ControlPtz controlPtz = new ControlPtz(mRtsp, mToken, "stop", 0.00, 0.00);
+                    ControlPtzUtils controlPtz = new ControlPtzUtils(mRtsp, mToken, "stop", 0.00, 0.00);
                     controlPtz.start();
                 }
                 break;

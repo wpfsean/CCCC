@@ -14,7 +14,7 @@ import java.net.URL;
  * token
  */
 
-public class ControlPtz implements Runnable {
+public class ControlPtzUtils implements Runnable {
 
     //移动指令
     public static final String PTZ_MOVE = "<?xml version=\"1.0\" encoding=\"utf-8\"?><s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"><s:Header/><s:Body xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><ContinuousMove xmlns=\"http://www.onvif.org/ver20/ptz/wsdl\"><ProfileToken>%s</ProfileToken><Velocity><PanTilt x=\"%s\" y=\"%s\" space=\"http://www.onvif.org/ver10/tptz/PanTiltSpaces/VelocityGenericSpace\" xmlns=\"http://www.onvif.org/ver10/schema\"/></Velocity></ContinuousMove></s:Body></s:Envelope>";
@@ -29,7 +29,7 @@ public class ControlPtz implements Runnable {
     double x;
     double y;
 
-    public ControlPtz(String ptz_url, String token, String flage, double x, double y) {
+    public ControlPtzUtils(String ptz_url, String token, String flage, double x, double y) {
         this.ptz_url = ptz_url;
         this.token = token;
         this.flage = flage;

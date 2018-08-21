@@ -36,7 +36,7 @@ public class SendHearToServerThread extends Thread {
         super.run();
 
         byte[] requestBytes = new byte[96];
-        byte[] flag = "ZDHB".getBytes();// 数据标识头字节
+        byte[] flag = AppConfig.heart_header_id.getBytes();// 数据标识头字节
         byte[] id = new byte[48];
         byte[] idKey = PhoneUtils.getPhoneInfo(App.getApplication(), 1).getBytes();//手机唯一 的标识字节
         System.arraycopy(flag, 0, requestBytes, 0, 4);

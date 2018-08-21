@@ -97,9 +97,9 @@ public class RequestVideoSourcesThread extends Thread {
             }
             int guidPosition = ByteUtils.getPosiotion(guid);
             String str_guid = new String(guid, 0, guidPosition, AppConfig.dataFormat);
-//            if (!TextUtils.isEmpty(str_guid)) {
-//                SharedPreferencesUtils.putObject(mContext, "device_guid", str_guid);
-//            }
+            if (!TextUtils.isEmpty(str_guid)) {
+               AppConfig.native_Guid = str_guid;
+            }
 
             byte[] deviceName = new byte[128];
             for (int i = 0; i < 128; i++) {
@@ -107,9 +107,10 @@ public class RequestVideoSourcesThread extends Thread {
             }
             int deviceName_position = ByteUtils.getPosiotion(deviceName);
             String str_deviceName = new String(deviceName, 0, deviceName_position, AppConfig.dataFormat);
-//            if (!TextUtils.isEmpty(str_deviceName)) {
-//                SharedPreferencesUtils.putObject(mContext, "device_name", str_deviceName);
-//            }
+            if (!TextUtils.isEmpty(str_deviceName)) {
+                AppConfig.nativeDeviceName = str_deviceName;
+            }
+
             // 总的数据长度（查文档，查看每个视频源的长度）
             int alldata = 424 * videoCount;
             byte[] buffer = new byte[1024];
@@ -189,6 +190,7 @@ public class RequestVideoSourcesThread extends Thread {
             if (listener != null) {
                 listener.getResult(null);
             }
+            Logutils.i(e.getMessage());
             Logutils.e("Execption:" + "get videoSources execption");
             WriteLogToFile.info("getVideoResources error :" + e.getMessage());
         }

@@ -10,7 +10,7 @@
     <RelativeLayout
         android:id="@+id/no_network_layout"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:layout_alignParentTop="true"
         android:background="#cccccc"
         android:visibility="gone">
@@ -20,7 +20,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:gravity="center"
-            android:text="亲、没网了吧" />
+            android:text="网络异常,请检查网络是否连接正确"
+            android:textColor="#ff0000" />
     </RelativeLayout>
 
 
@@ -98,7 +99,7 @@
         android:layout_height="56dp"
         android:layout_alignParentBottom="true"
         android:background="#FFFFFF"
-        android:orientation="horizontal">
+        android:orientation="horizontal" android:layout_marginBottom="4dp">
 
         <RadioButton
             android:id="@+id/bottom_intercom_btn"
@@ -109,7 +110,7 @@
             android:button="@null"
             android:checked="true"
             android:drawableBottom="@drawable/port_network_intercom_selected"
-            android:gravity="center" />
+            android:gravity="center"  />
 
         <RadioButton
             android:id="@+id/bottom_chat_btn"
