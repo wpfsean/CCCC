@@ -27,6 +27,7 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.zkth.mst.client.R;
+import com.zkth.mst.client.apk.UpdateManager;
 import com.zkth.mst.client.base.AppConfig;
 import com.zkth.mst.client.base.BaseActivity;
 import com.zkth.mst.client.base.DbConfig;
@@ -47,7 +48,6 @@ import butterknife.OnClick;
 
 /**
  * 登录首页面
- *
  */
 
 public class LoginActivity extends BaseActivity {
@@ -161,6 +161,9 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void initData() {
 
+        UpdateManager updateManager = new UpdateManager(this);
+        updateManager.checkUpdate();
+
         //百度地图获取定位信息
         initBDLocation();
 
@@ -226,7 +229,7 @@ public class LoginActivity extends BaseActivity {
         option.setLocationNotify(true);
         option.setIgnoreKillProcess(false);
         option.SetIgnoreCacheException(false);
-        option.setWifiCacheTimeOut(5*60*1000);
+        option.setWifiCacheTimeOut(5 * 60 * 1000);
         option.setEnableSimulateGps(false);
         mLocationClient.setLocOption(option);
         mLocationClient.registerLocationListener(myListener);
@@ -446,7 +449,7 @@ public class LoginActivity extends BaseActivity {
             ActivityCompat.requestPermissions(LoginActivity.this, permissions, 1);
         } else {
             //未授予的权限为空，表示都授予了 // 后续操作...
-           // delayEntryPage();
+            // delayEntryPage();
             initData();
         }
 
@@ -471,11 +474,11 @@ public class LoginActivity extends BaseActivity {
                         } else {
                             mShowRequestPermission = false;//已经禁止
                             String permisson = permissions[i];
-                            Log.w("TAG", "permisson:"+permisson);
+                            Log.w("TAG", "permisson:" + permisson);
                         }
                     }
                 }
-              //  delayEntryPage();
+                //  delayEntryPage();
                 initData();
                 break;
             default:
@@ -486,7 +489,7 @@ public class LoginActivity extends BaseActivity {
     //位置监听回调
     public class MyLocationListener extends BDAbstractLocationListener {
         @Override
-        public void onReceiveLocation(BDLocation location){
+        public void onReceiveLocation(BDLocation location) {
             double latitude = location.getLatitude();    //获取纬度信息
             double longitude = location.getLongitude();    //获取经度信息
             AppConfig.lat = latitude;
