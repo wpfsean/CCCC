@@ -96,6 +96,12 @@ public class DbConfig {
                         case 12://服务器ip
                             data = cursor.getString(cursor.getColumnIndex("serverip"));
                             break;
+                        case 13://服务器ip
+                            data = cursor.getString(cursor.getColumnIndex("guid"));
+                            break;
+                        case 14://服务器ip
+                            data = cursor.getString(cursor.getColumnIndex("device_name"));
+                            break;
                     }
                 } else {
                     return "";

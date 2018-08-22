@@ -1,5 +1,7 @@
 package com.zkth.mst.client.callbacks;
 
+import android.text.TextUtils;
+
 import com.zkth.mst.client.base.AppConfig;
 import com.zkth.mst.client.base.DbConfig;
 import com.zkth.mst.client.utils.ByteUtils;
@@ -33,7 +35,7 @@ public class AmmoRequestCallBack implements Runnable {
     @Override
     public void run() {
         synchronized (this) {
-		    //从数据库
+            //从数据库
             dbServerIp = DbConfig.getInstance().getData(11);
             dbPort = DbConfig.getInstance().getData(6);
 
@@ -67,7 +69,13 @@ public class AmmoRequestCallBack implements Runnable {
 
             byte[] sender = new byte[48];
 
-            byte[] guidByte = AppConfig.native_Guid.getBytes();
+            String guid = "null";
+            String dbGuid = DbConfig.getInstance().getData(14);
+            if (!TextUtils.isEmpty(dbGuid)){
+                guid = dbGuid;
+            }
+
+            byte[] guidByte = guid.getBytes();
             System.arraycopy(guidByte, 0, sender, 0, guidByte.length);
             System.arraycopy(sender, 0, request, 20, 48);
 

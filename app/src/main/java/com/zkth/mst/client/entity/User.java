@@ -4,37 +4,31 @@ import java.io.Serializable;
 
 /**
  * Created by Root on 2018/8/5.
+ *
+ * 用于整个项目配置的数据
+ *
  */
 
 public class User implements Serializable {
-//   + "login_time" + " TEXT,"
-//           + "name" + " TEXT,"
-//           + "pass" + " TEXT,"
-//           + "nativeip" + " TEXT,"
-//           + "header_port" + " TEXT,"
-//           + "login_port" + " TEXT,"
-//           + "alarm_port" + " TEXT,"
-//           + "sip_name" + " TEXT,"
-//           + "sip_num" + " TEXT,"
-//           + "sip_server" + " TEXT,"
-//           + "sip_pwd" + " TEXT,"
-//           + "alarm_ip" + " TEXT,"
-//           + "serverip" + " TEXT)";
 
-    private String login_time;
-    private String name;
-    private String pass;
-    private String nativeip;
-    private String header_port;
-    private String login_port;
-    private String alarm_port;
-    private String sip_name;
-    private String sip_num;
-    private String sip_server;
-    private String sip_pwd;
-    private String alarm_ip;
-    private String serverip;
+    private String login_time;//登录的时间点
+    private String name;//当前的登录者
+    private String pass;//登录者的密码
+    private String nativeip;//本机ip
+    private String header_port;//心跳端口
+    private String login_port;//登录端口
+    private String alarm_port;//心跳端口
+    private String sip_name;//sip名称
+    private String sip_num;//sip号码
+    private String sip_server;//sip服务器地址
+    private String sip_pwd;//sip密码
+    private String alarm_ip;//报警Ip
+    private String serverip;//服务ip
+    private String guid;//设备的guid
+    private String deviceName;//当前的设备名称
 
+    public User() {
+    }
 
     @Override
     public String toString() {
@@ -52,14 +46,12 @@ public class User implements Serializable {
                 ", sip_pwd='" + sip_pwd + '\'' +
                 ", alarm_ip='" + alarm_ip + '\'' +
                 ", serverip='" + serverip + '\'' +
+                ", guid='" + guid + '\'' +
+                ", deviceName='" + deviceName + '\'' +
                 '}';
     }
 
-    public User() {
-    }
-
     public String getLogin_time() {
-
         return login_time;
     }
 
@@ -161,5 +153,21 @@ public class User implements Serializable {
 
     public void setServerip(String serverip) {
         this.serverip = serverip;
+    }
+
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(String guid) {
+        this.guid = guid;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 }

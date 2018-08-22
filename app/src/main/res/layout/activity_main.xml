@@ -52,6 +52,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="6dp"
+                    android:background="@mipmap/icon_connection_disable"
                     android:layout_toLeftOf="@+id/icon_electritity_show" />
 
                 <TextView

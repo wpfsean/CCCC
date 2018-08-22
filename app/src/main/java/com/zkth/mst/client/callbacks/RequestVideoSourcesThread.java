@@ -1,13 +1,17 @@
 package com.zkth.mst.client.callbacks;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.zkth.mst.client.base.App;
 import com.zkth.mst.client.base.AppConfig;
 import com.zkth.mst.client.base.DbConfig;
+import com.zkth.mst.client.db.DatabaseHelper;
 import com.zkth.mst.client.db.Logutils;
 import com.zkth.mst.client.entity.VideoBen;
+import com.zkth.mst.client.ui.activity.MainActivity;
 import com.zkth.mst.client.utils.ByteUtils;
 import com.zkth.mst.client.utils.SharedPreferencesUtils;
 import com.zkth.mst.client.utils.WriteLogToFile;
@@ -31,7 +35,8 @@ public class RequestVideoSourcesThread extends Thread {
     private ByteArrayOutputStream bos = null;
     Context mContext;
     GetDataListener listener;
-
+    String str_guid;
+    String str_deviceName;
 
     public RequestVideoSourcesThread(Context mContext, GetDataListener listener) {
         this.mContext = mContext;
@@ -96,21 +101,23 @@ public class RequestVideoSourcesThread extends Thread {
                 guid[i] = headers[i + 8];
             }
             int guidPosition = ByteUtils.getPosiotion(guid);
-            String str_guid = new String(guid, 0, guidPosition, AppConfig.dataFormat);
-            if (!TextUtils.isEmpty(str_guid)) {
-               AppConfig.native_Guid = str_guid;
-            }
+             str_guid = new String(guid, 0, guidPosition, AppConfig.dataFormat);
 
             byte[] deviceName = new byte[128];
             for (int i = 0; i < 128; i++) {
                 deviceName[i] = headers[i + 8 + 48];
             }
             int deviceName_position = ByteUtils.getPosiotion(deviceName);
-            String str_deviceName = new String(deviceName, 0, deviceName_position, AppConfig.dataFormat);
-            if (!TextUtils.isEmpty(str_deviceName)) {
-                AppConfig.nativeDeviceName = str_deviceName;
-            }
+             str_deviceName = new String(deviceName, 0, deviceName_position, AppConfig.dataFormat);
 
+            if (!TextUtils.isEmpty(str_guid) && !TextUtils.isEmpty(str_deviceName)) {
+                DatabaseHelper databaseHelper = new DatabaseHelper(mContext);
+                SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put("guid", str_guid);
+                contentValues.put("device_name",str_deviceName);
+                db.update("users", contentValues, "_id = ?", new String[]{"1"});
+            }
             // 总的数据长度（查文档，查看每个视频源的长度）
             int alldata = 424 * videoCount;
             byte[] buffer = new byte[1024];

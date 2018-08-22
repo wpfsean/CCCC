@@ -71,4 +71,5 @@ dependencies {
     compile(name: 'liblinphone-android-sdk', ext: 'aar')
     compile 'com.google.code.gson:gson:2.6.2'
     implementation files('libs/Volley.jar')
+    implementation files('libs/SQLiteStudioRemote.jar')
 }

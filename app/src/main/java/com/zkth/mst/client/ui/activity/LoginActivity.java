@@ -1,10 +1,14 @@
 package com.zkth.mst.client.ui.activity;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -45,6 +49,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import pl.com.salsoft.sqlitestudioremote.SQLiteStudioService;
 
 /**
  * 登录首页面
@@ -161,16 +166,14 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void initData() {
 
-        UpdateManager updateManager = new UpdateManager(this);
-        updateManager.checkUpdate();
+        SQLiteStudioService.instance().start(this);
 
         //百度地图获取定位信息
-        initBDLocation();
 
         //申请权限
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            checkPermission();
-//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkPermission();
+        }
 
         //初始化数据库对象
         databaseHelper = new DatabaseHelper(LoginActivity.this);
@@ -302,21 +305,39 @@ public class LoginActivity extends BaseActivity {
                                         //保存记住密码的状态
                                         SharedPreferencesUtils.putObject(LoginActivity.this, "isremember", isRemember);
                                     }
-                                    User user = new User();
-                                    user.setServerip(server_IP);
-                                    user.setName(name);
-                                    user.setPass(pass);
-                                    user.setLogin_port("2010");
-                                    user.setAlarm_ip("19.0.0.27");
-                                    user.setAlarm_port("2000");
-                                    user.setHeader_port("2020");
-                                    user.setLogin_time(new Date().toString());
-                                    user.setNativeip(nativeIP);
-                                    //向数据库中的users配置表中插入数据
-                                    databaseHelper.insertOneUser(user);
+                                    Cursor c = databaseHelper.getUserCursor();
+                                    if (c == null) {
+                                        User user = new User();
+                                        user.setServerip(server_IP);
+                                        user.setName(name);
+                                        user.setPass(pass);
+                                        user.setLogin_port("2010");
+                                        user.setAlarm_ip("19.0.0.27");
+                                        user.setAlarm_port("2000");
+                                        user.setHeader_port("2020");
+                                        user.setLogin_time(new Date().toString());
+                                        user.setNativeip(nativeIP);
+                                        //向数据库中的users配置表中插入数据
+                                        databaseHelper.insertOneUser(user);
+                                    }else {
+                                        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                                        ContentValues contentValues = new ContentValues();
+                                        contentValues.put("login_time",new Date().toString());
+                                        contentValues.put("name",name);
+                                        contentValues.put("pass",pass);
+                                        contentValues.put("nativeip",nativeIP);
+                                        contentValues.put("serverip",server_IP);
+                                        db.update("users", contentValues, "_id = ?", new String[]{"1"});
+                                    }
 //                                    Logutils.i("insert success");
                                     //加载动画消失并提示登录成功
-                                    loginSuccess();
+                                    new Handler().postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            loginSuccess();
+                                        }
+                                    }, 500);
+
                                 }
                             });
                         } else {
@@ -450,7 +471,7 @@ public class LoginActivity extends BaseActivity {
         } else {
             //未授予的权限为空，表示都授予了 // 后续操作...
             // delayEntryPage();
-            initData();
+            initBDLocation();
         }
 
     }
@@ -479,7 +500,7 @@ public class LoginActivity extends BaseActivity {
                     }
                 }
                 //  delayEntryPage();
-                initData();
+                initBDLocation();
                 break;
             default:
                 break;

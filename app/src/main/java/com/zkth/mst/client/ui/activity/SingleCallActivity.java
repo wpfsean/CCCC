@@ -38,9 +38,11 @@ import com.zkth.mst.client.base.BaseActivity;
 import com.zkth.mst.client.entity.SipBean;
 import com.zkth.mst.client.linphone.Linphone;
 import com.zkth.mst.client.linphone.PhoneCallback;
+import com.zkth.mst.client.linphone.RegistrationCallback;
 import com.zkth.mst.client.rtsp.RtspServer;
 import com.zkth.mst.client.rtsp.media.VideoMediaCodec;
 import com.zkth.mst.client.rtsp.record.Constant;
+import com.zkth.mst.client.utils.LogUtils;
 import com.zkth.mst.client.utils.NetworkUtils;
 import com.zkth.mst.client.utils.PhoneUtils;
 import com.zkth.mst.client.utils.SharedPreferencesUtils;
@@ -128,6 +130,25 @@ public class SingleCallActivity extends BaseActivity implements View.OnClickList
 
     @BindView(R.id.bottom_sliding_recyclerview)
     public RecyclerView bottomSlidingView;
+
+
+    /**
+     * 电量信息
+     */
+    @BindView(R.id.icon_electritity_show)
+    ImageView batteryIcon;
+
+    /**
+     * 信号强度
+     */
+    @BindView(R.id.icon_network)
+    ImageView rssiIcon;
+
+    /**
+     * 连接状态
+     */
+    @BindView(R.id.icon_connection_show)
+    ImageView connetIConb;
 
     /**
      * 远端播放时显示提示文字
@@ -585,6 +606,55 @@ public class SingleCallActivity extends BaseActivity implements View.OnClickList
 
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Linphone.addCallback(new RegistrationCallback() {
+            @Override
+            public void registrationProgress() {
+                LogUtils.i("TAG", "registering");
+            }
+
+            @Override
+            public void registrationOk() {
+                LogUtils.i("TAG", "registrationOk");
+                updateUi(connetIConb,R.mipmap.icon_connection_normal);
+            }
+
+            @Override
+            public void registrationFailed() {
+                LogUtils.i("TAG", "registrationFailed");
+                updateUi(connetIConb,R.mipmap.icon_connection_disable);
+            }
+        }, null);
+
+
+        int level = AppConfig.battery;
+        if (level >= 75 && level <= 100) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_a);
+        }
+        if (level >= 50 && level < 75) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_b);
+        }
+        if (level >= 25 && level < 50) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_c);
+        }
+        if (level >= 0 && level < 25) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_disable);
+        }
+
+        int rssi = AppConfig.wifi;
+        if (rssi > -50 && rssi < 0) {
+            updateUi(rssiIcon, R.mipmap.icon_network);
+        } else if (rssi > -70 && rssi <= -50) {
+            updateUi(rssiIcon, R.mipmap.icon_network_a);
+        } else if (rssi < -70) {
+            updateUi(rssiIcon, R.mipmap.icon_network_b);
+        } else if (rssi == -200) {
+            updateUi(rssiIcon, R.mipmap.icon_network_disable);
+        }
+    }
+
+    @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         //前后摄像头的数据采集,根据前后进行相应的视频流旋转
 //        Log.d("views","data:  "+data.length);
@@ -793,5 +863,17 @@ public class SingleCallActivity extends BaseActivity implements View.OnClickList
     public void onBackPressed() {
         super.onBackPressed();
         finishPage();
+    }
+
+    /**
+     * 更新UI
+     */
+    public void updateUi(final ImageView imageView, final int n) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                imageView.setBackgroundResource(n);
+            }
+        });
     }
 }

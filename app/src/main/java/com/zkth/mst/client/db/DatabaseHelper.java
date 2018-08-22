@@ -20,13 +20,14 @@ import com.zkth.mst.client.utils.LogUtils;
  * DatabaseHelper databaseHelper = new DatabaseHelper(LoginActivity.this);
  * databaseHelper.insertOneUser(user);
  * databaseHelper.getFirstUser();
+ *
  */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private SQLiteDatabase db;// 数据库
 
     public DatabaseHelper(Context context) {
-        super(context, "zkth.db", null, 1);
+        super(context, "zkth_p.db", null, 1);
         db = this.getWritableDatabase();
     }
 
@@ -47,7 +48,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "sip_server" + " TEXT,"
                 + "sip_pwd" + " TEXT,"
                 + "alarm_ip" + " TEXT,"
-                + "serverip" + " TEXT)";
+                + "serverip" + " TEXT,"
+                + "guid" + " TEXT,"
+                + "device_name" + " TEXT)";
         sqLiteDatabase.execSQL(sql1);
 
 
@@ -80,10 +83,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 contentValues.put("alarm_port",u.getAlarm_port());
                 contentValues.put("sip_name",u.getSip_name());
                 contentValues.put("sip_num",u.getSip_num());
-                contentValues.put("sip_server",u.getServerip());
+                contentValues.put("sip_server",u.getSip_server());
                 contentValues.put("sip_pwd",u.getSip_pwd());
                 contentValues.put("alarm_ip",u.getAlarm_ip());
                 contentValues.put("serverip",u.getServerip());
+                contentValues.put("guid",u.getGuid());
+                contentValues.put("device_name",u.getDeviceName());
                 db.insert("users",null,contentValues);
                 Logutils.i("插入成功");
             }

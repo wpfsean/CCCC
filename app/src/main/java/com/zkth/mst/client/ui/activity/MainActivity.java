@@ -17,6 +17,7 @@ import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.zkth.mst.client.R;
+import com.zkth.mst.client.apk.UpdateManager;
 import com.zkth.mst.client.base.App;
 import com.zkth.mst.client.base.AppConfig;
 import com.zkth.mst.client.base.BaseActivity;
@@ -54,6 +56,7 @@ import com.zkth.mst.client.onvif.Onvif;
 import com.zkth.mst.client.rtsp.RtspServer;
 import com.zkth.mst.client.rtsp.media.VideoMediaCodec;
 import com.zkth.mst.client.rtsp.record.Constant;
+import com.zkth.mst.client.utils.ActivityUtils;
 import com.zkth.mst.client.utils.CpuAndRamUtils;
 import com.zkth.mst.client.utils.LogUtils;
 import com.zkth.mst.client.utils.NetworkUtils;
@@ -300,6 +303,10 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
 
     @Override
     public void initData() {
+
+//
+//        UpdateManager updateManager = new UpdateManager(this);
+//        updateManager.checkUpdate();
 
         //启动心跳服务15秒后开始发送心跳
         startService(new Intent(this, SendHbService.class));
@@ -550,9 +557,13 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                 }
             });
         } else {
-            ToastUtils.showShort("Sip未注册,请检查网络或重新登录");
+           runOnUiThread(new Runnable() {
+               @Override
+               public void run() {
+                   showProgressFail("通话功能未注册！");
+               }
+           });
         }
-
     }
 
     //申请供弹
@@ -913,7 +924,6 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
         RequestSipSourcesThread sipThread = new RequestSipSourcesThread(MainActivity.this, "0", new RequestSipSourcesThread.SipListern() {
             @Override
             public void getDataListern(List<SipBean> mList) {
-                Logutils.i("mlist:" + mList.size());
                 if (mList != null && mList.size() > 0) {
                     if (!TextUtils.isEmpty(ip)) {
                         for (SipBean s : mList) {
@@ -988,7 +998,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                         @Override
                         public void run() {
                             android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MainActivity.this);
-                            builder.setTitle("No Sip Infor").setMessage("未获取到sip信息，请检查本机ip是否配置正确~~").create().show();
+                            builder.setTitle("Error").setMessage("请检查本机IP是否正确配置").create().show();
                         }
                     });
                 }
@@ -1091,7 +1101,7 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            showProgressFail("未获取到CMS数据",3*1000);
+                            showProgressFail("未获取到CMS数据");
                         }
                     });
                     WriteLogToFile.info("No get Video Resources Data !!!");
@@ -1138,5 +1148,38 @@ public class MainActivity extends BaseActivity implements Camera.PreviewCallback
                 imageView.setBackgroundResource(n);
             }
         });
+    }
+
+
+    private long showtime = 0;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exit();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+    public void exit() {
+        //判断两次按下返回键的时间
+        if ((System.currentTimeMillis() - showtime) > 2000) {
+         //   ToastUtils.showShort("再按一次退出程序");
+            showtime = System.currentTimeMillis();
+
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("退出")
+                    .setMessage("真的要退出?")
+                    .setPositiveButton("确定 ", new AlertDialog.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                          dialog.dismiss();
+                            ActivityUtils.removeAllActivity();
+                            finish();
+                            System.exit(0);
+                        }
+                    }).setNegativeButton("取消", null).create().show();
+        }
     }
 }

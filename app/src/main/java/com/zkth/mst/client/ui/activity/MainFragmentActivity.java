@@ -7,17 +7,25 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.zkth.mst.client.R;
 import com.zkth.mst.client.adapter.SlidingPagerAdapter;
+import com.zkth.mst.client.base.AppConfig;
 import com.zkth.mst.client.base.BaseActivity;
 import com.zkth.mst.client.db.Logutils;
+import com.zkth.mst.client.linphone.Linphone;
+import com.zkth.mst.client.linphone.PhoneCallback;
+import com.zkth.mst.client.linphone.RegistrationCallback;
 import com.zkth.mst.client.ui.fragment.ChatListFragment;
 import com.zkth.mst.client.ui.fragment.IntercomFragment;
 import com.zkth.mst.client.ui.fragment.VoideoFragment;
+import com.zkth.mst.client.utils.LogUtils;
+
+import org.linphone.core.LinphoneCall;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +59,26 @@ public class MainFragmentActivity extends BaseActivity {
 
     @BindView(R.id.mainfragment_time_layout)
     TextView mainfragment_time_layout;
+
+
+    /**
+     * 电量信息
+     */
+    @BindView(R.id.icon_electritity_show)
+    ImageView batteryIcon;
+
+    /**
+     * 信号强度
+     */
+    @BindView(R.id.icon_network)
+    ImageView rssiIcon;
+
+    /**
+     * 连接状态
+     */
+    @BindView(R.id.icon_connection_show)
+    ImageView connetIConb;
+
 
 
     String[] title = new String[]{"Sip通话", "视频监控", "SIp通信"};
@@ -156,6 +184,55 @@ public class MainFragmentActivity extends BaseActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Linphone.addCallback(new RegistrationCallback() {
+            @Override
+            public void registrationProgress() {
+                LogUtils.i("TAG", "registering");
+            }
+
+            @Override
+            public void registrationOk() {
+                LogUtils.i("TAG", "registrationOk");
+                updateUi(connetIConb,R.mipmap.icon_connection_normal);
+            }
+
+            @Override
+            public void registrationFailed() {
+                LogUtils.i("TAG", "registrationFailed");
+                updateUi(connetIConb,R.mipmap.icon_connection_disable);
+            }
+        }, null);
+
+
+        int level = AppConfig.battery;
+        if (level >= 75 && level <= 100) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_a);
+        }
+        if (level >= 50 && level < 75) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_b);
+        }
+        if (level >= 25 && level < 50) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_c);
+        }
+        if (level >= 0 && level < 25) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_disable);
+        }
+
+        int rssi = AppConfig.wifi;
+        if (rssi > -50 && rssi < 0) {
+            updateUi(rssiIcon, R.mipmap.icon_network);
+        } else if (rssi > -70 && rssi <= -50) {
+            updateUi(rssiIcon, R.mipmap.icon_network_a);
+        } else if (rssi < -70) {
+            updateUi(rssiIcon, R.mipmap.icon_network_b);
+        } else if (rssi == -200) {
+            updateUi(rssiIcon, R.mipmap.icon_network_disable);
+        }
+
+    }
 
     @Override
     protected int getLayoutId() {
@@ -254,5 +331,17 @@ public class MainFragmentActivity extends BaseActivity {
     public void onBackPressed() {
         super.onBackPressed();
         MainFragmentActivity.this.finish();
+    }
+
+    /**
+     * 更新UI
+     */
+    public void updateUi(final ImageView imageView, final int n) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                imageView.setBackgroundResource(n);
+            }
+        });
     }
 }

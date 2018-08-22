@@ -19,6 +19,7 @@
 
             <!--最顶部的头文件-->
             <RelativeLayout
+                android:background="#ccc"
                 android:layout_width="fill_parent"
                 android:layout_height="21.3dp">
 
@@ -29,6 +30,32 @@
                     android:layout_centerInParent="true"
                     android:text=""
                     android:textColor="@color/black" />
+
+
+                <ImageView
+                    android:id="@+id/icon_network"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="6dp" />
+
+                <ImageView
+                    android:id="@+id/icon_electritity_show"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="6dp"
+                    android:layout_toLeftOf="@+id/icon_network" />
+
+                <ImageView
+                    android:id="@+id/icon_connection_show"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="6dp"
+                    android:layout_toLeftOf="@+id/icon_electritity_show"
+                    android:background="@mipmap/icon_connection_disable" />
             </RelativeLayout>
             <!--标题 tilte-->
             <RelativeLayout

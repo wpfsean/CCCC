@@ -53,7 +53,7 @@ public class LoginCMSThread implements Runnable {
             bys[6] = 0;
             bys[7] = 0;
             //用户名列表
-            String parameters = name+"/"+pass+"/"+nativeIp+"/0";
+            String parameters = name+"/"+pass+"/"+nativeIp;
             byte[] na = parameters.getBytes(AppConfig.dataFormat);
             for (int i = 0; i < na.length; i++) {
                 bys[i + 8] = na[i];

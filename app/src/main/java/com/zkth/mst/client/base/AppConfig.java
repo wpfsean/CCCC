@@ -30,10 +30,6 @@ public class AppConfig {
     //心跳端口
     public static int alarm_server_port = 2000;
 
-    //当前设备的guid
-    public static String native_Guid = "{1ae41588-0a4e-4838-bef5-5980e322ef54}";
-    //当前的设备名称
-    public static String nativeDeviceName = "";
     //报警类型
     public static String alertType = "社会大哥打人了";
 

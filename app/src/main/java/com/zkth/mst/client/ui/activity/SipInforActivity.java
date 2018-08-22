@@ -26,14 +26,18 @@ import android.widget.Toast;
 
 import com.zkth.mst.client.R;
 import com.zkth.mst.client.adapter.ButtomSlidingAdapter;
+import com.zkth.mst.client.base.AppConfig;
 import com.zkth.mst.client.base.BaseActivity;
 import com.zkth.mst.client.base.DbConfig;
 import com.zkth.mst.client.callbacks.RequestSipSourcesThread;
 import com.zkth.mst.client.entity.SipBean;
 import com.zkth.mst.client.entity.SipClient;
+import com.zkth.mst.client.linphone.Linphone;
+import com.zkth.mst.client.linphone.RegistrationCallback;
 import com.zkth.mst.client.linphone.SipService;
 import com.zkth.mst.client.ui.activity.SingleCallActivity;
 import com.zkth.mst.client.utils.ActivityUtils;
+import com.zkth.mst.client.utils.LogUtils;
 import com.zkth.mst.client.utils.NetworkUtils;
 import com.zkth.mst.client.utils.TimeDo;
 import com.zkth.mst.client.utils.ToastUtils;
@@ -106,6 +110,24 @@ public class SipInforActivity extends BaseActivity {
      * 回传的groupID
      */
     int groupID;
+
+    /**
+     * 电量信息
+     */
+    @BindView(R.id.icon_electritity_show)
+    ImageView batteryIcon;
+
+    /**
+     * 信号强度
+     */
+    @BindView(R.id.icon_network)
+    ImageView rssiIcon;
+
+    /**
+     * 连接状态
+     */
+    @BindView(R.id.icon_connection_show)
+    ImageView connetIConb;
 
     //handler刷新主Ui显示时间
     private Handler handler = new Handler() {
@@ -516,7 +538,61 @@ public class SipInforActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-    }
+        Linphone.addCallback(new RegistrationCallback() {
+            @Override
+            public void registrationProgress() {
+                LogUtils.i("TAG", "registering");
+            }
 
+            @Override
+            public void registrationOk() {
+                LogUtils.i("TAG", "registrationOk");
+                updateUi(connetIConb,R.mipmap.icon_connection_normal);
+            }
+
+            @Override
+            public void registrationFailed() {
+                LogUtils.i("TAG", "registrationFailed");
+                updateUi(connetIConb,R.mipmap.icon_connection_disable);
+            }
+        }, null);
+
+
+        int level = AppConfig.battery;
+        if (level >= 75 && level <= 100) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_a);
+        }
+        if (level >= 50 && level < 75) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_b);
+        }
+        if (level >= 25 && level < 50) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_c);
+        }
+        if (level >= 0 && level < 25) {
+            updateUi(batteryIcon, R.mipmap.icon_electricity_disable);
+        }
+
+        int rssi = AppConfig.wifi;
+        if (rssi > -50 && rssi < 0) {
+            updateUi(rssiIcon, R.mipmap.icon_network);
+        } else if (rssi > -70 && rssi <= -50) {
+            updateUi(rssiIcon, R.mipmap.icon_network_a);
+        } else if (rssi < -70) {
+            updateUi(rssiIcon, R.mipmap.icon_network_b);
+        } else if (rssi == -200) {
+            updateUi(rssiIcon, R.mipmap.icon_network_disable);
+        }
+    }
+    /**
+     * 更新UI
+     */
+    public void updateUi(final ImageView imageView, final int n) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                imageView.setBackgroundResource(n);
+            }
+        });
+    }
 
 }
